@@ -3,16 +3,19 @@ var fs = require("fs");
 var Twit = require("twit");
 var T;
 
+// Twitter authorization
 function init() {
 	let auth_tokens = fs.readFileSync("./twit_auth.txt", "utf8");
 	auth_tokens = JSON.parse(auth_tokens);
 	T = new Twit(auth_tokens);
 }
 
+// Retrieve list of friends => saveUsers()
 function update() {
 	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200}, (err, data, response) => saveUsers(err, data, response));
 }
 
+// Retrieve Tweets from each user => getVids()
 function saveUsers(err, data, response) {
 	data = data.users;
 
@@ -24,26 +27,40 @@ function saveUsers(err, data, response) {
 	}
 }
 
+// Output video URL's from a user's most recent Tweets
 function getVids(err, data, response) {
-	if (data.length > 0) {
-		console.log(data[0].user.screen_name, ":")
+	if (data.length > 0) { // if tweets were returned
+		let name = data[0].user.name;
+		let screen_name = data[0].user.screen_name;
+		// console.log(name, "(", screen_name, ")", ":");
+		// let output = '${name} (@${screen_name}):\n';
+		let output = name + " (" + screen_name + "):\n";
 
-		for (i in data) {
+		let videos_found = false;
+		for (i in data) { // look at each tweet
 			let entities = data[i].extended_entities
 			if (entities != undefined &&
-				entities.media[0] != undefined && entities.media[0].type == "video") {
-				// console.log(entities.media[0])
+			entities.media[0] != undefined
+			&& entities.media[0].type == "video") { // if tweet contains video
+				videos_found = true
 
-				let variants = entities.media[0].video_info.variants;
-				for (j in variants) {
+				let variants = entities.media[0].video_info.variants; // parse through video metadata
+				for (j in variants) { // output first mp4 file encountered
 					if (variants[j].content_type == "video/mp4") {
-						console.log(variants[j].url);
+						// console.log(variants[j].url);
+						url = variants[j].url + "\n"
+						output += url
 						break;
 					}
 				} // for (j in variants)
-			} // iff (entities != undefined && ...
+			} // if (entities != undefined && ...
 		} // for (i in data)
-		console.log()
+
+		// console.log(videos_found)
+		if (videos_found) {
+			console.log(output)
+		}
+
 	}
 }
 
