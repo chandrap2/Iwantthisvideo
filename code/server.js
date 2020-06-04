@@ -4,10 +4,12 @@ const port = 3001
 
 const fs = require("fs");
 
-const Twit = require("twit");
+const Twit = require("twitter-lite");
 var T;
 
 var num = 0;
+var latest_update_str;
+var valid_results = false;
 
 // app.get("/", (request, response) => {
 // 	let home = fs.readFileSync("../index.html", "utf8");
@@ -29,45 +31,83 @@ function init() {
 	let auth_tokens = fs.readFileSync("./twit_auth.txt", "utf8");
 	auth_tokens = JSON.parse(auth_tokens);
 	T = new Twit(auth_tokens);
+
+	// T.get("account/verify_credentials")
+  // .then(results => {
+  //   console.log("results", results);
+  // })
+  // .catch(console.error);
 }
 
 // Retrieve list of friends => saveUsers()
-// function update(vidResultsFunc) {
 function update() {
-	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200}, (err, data, response) => saveUsers(err, data, response, vidResultsFunc));
-	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200}, (err, data, response) => saveUsers(err, data, response));
+	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200}).then((results) => {
+		// console.log(results);
+		saveUsers(results);
+	}).catch(console.error);
 }
 
 // Retrieve Tweets from each user => getVids()
 // function saveUsers(err, data, response, vidResultsFunc) {
-function saveUsers(err, data, response) {
+function saveUsers(data) {
 	data = data.users;
+	latest_update_str = "";
+	// console.log(data.length)
 
-	for (i in data) {
-		let friend = data[i];
-		let name = friend.screen_name;
-		// console.log(name)
+	let processed = 0;
+	new Promise((res, rej) => {
+		for (i in data) {
+			let friend = data[i];
+			let name = friend.screen_name;
+			// console.log(name)
 
-		T.get("statuses/user_timeline", {screen_name: name, exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
-		// T.get("statuses/user_timeline", {screen_name: name, exclude_replies: true, count: 20}).then(function(data) {
-		// 		getVids(null, data, null);
-		// 	}).catch(function(err) {
-		// 		console.log("failure" + err.stack)
-		// 	});
-	}
+			T.get("statuses/user_timeline",
+			{screen_name: name, exclude_replies: true, count: 20}).then((results) => {
+				latest_update_str += getVids(results); processed++;
+				new Promise((res1, rej1) => {
+					if (processed == data.length) res1();
+				}).then((results) => {
+					res(latest_update_str);
+				});
+			}).catch((err) => {
+				processed++;
+				new Promise((res1, rej1) => {	if (processed == data.length) res1(); })
+				.then((results) => {
+					res(latest_update_str);
+				});
+				console.log(err);
+			});
+		}
+
+	}).then((results) => { console.log("results:\n**********\n", results); })
+	.catch((results) => { console.log(false); });
+
+	// while (true) {
+	// 	Promise.all(promises).then(() => { console.log("Done"); return; });
+	// }
+	// console.log(promises.length);
+	// Promise.all(promises)
+	// .then(() => {
+	// 	console.log("************");
+	// 	console.log(latest_update_str);
+	// })
+	// .catch((err) => {
+	//
+	// });
 }
 
 // Output video URL's from a user's most recent Tweets
-// function getVids(err, data, response, vidResultsFunc) {
-function getVids(err, data, response) {
-	if (data.length > 0) { // if tweets were returned
-		let name = data[0].user.name;
-		let screen_name = data[0].user.screen_name;
-		let output = `${name} ( @${screen_name} ):\n`;
+function getVids(results) {
+	let output = "";
+
+	if (results.length > 0) { // if tweets were returned
+		let name = results[0].user.name;
+		let screen_name = results[0].user.screen_name;
+		output += `${name} ( @${screen_name} ):\n`;
 
 		let videos_found = false;
-		for (i in data) { // look at each tweet
-			let entities = data[i].extended_entities
+		for (i in results) { // look at each tweet
+			let entities = results[i].extended_entities
 			if (entities != undefined &&
 				entities.media[0].type == "video") { // if tweet contains video
 				videos_found = true
@@ -86,16 +126,17 @@ function getVids(err, data, response) {
 			} // if (entities != undefined && ...
 		} // for (i in data)
 
-
 		if (videos_found) { // only output if account Tweeted videos
 			console.log(++num);
 			console.log(output);
-			// vidResultsFunc(output);
+			return output + "\n";
 		}
 	}
+
+	return "";
 }
 
-function test(data) {
+function test(results) {
 	// console.log(data[0].entities.media)
 	console.log(data[0].extended_entities);
 }
