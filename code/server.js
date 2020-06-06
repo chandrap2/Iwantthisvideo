@@ -23,10 +23,10 @@ app.get("/", (request, response) => {
 app.get("/getvids", (request, response) => {
 	new Promise((res, rej) => {
 		let promiseObj = {resolve: res, reject: rej}
-		// update(promiseObj);
-		update(promiseObj, 5);
+		update(promiseObj);
+		// update(promiseObj, 5);
 	}).then((results) => {
-		response.send(`<p>${results}</p>`);
+		response.send(results);
 	}).catch((err) => {
 		response.send(err);
 	});
@@ -51,25 +51,25 @@ function saveUsers(data, num_accs, promiseObj) {
 	data = data.users;
 	num_accs = (num_accs == -1) ? data.length : num_accs;
 
-	let num = 0, latest_update_str = "";
+	let num = 0, finalObj = {results: []};
 
 	let processed_accs = 0;
-
 	// Check if all users have been processed
-	function finishStr(res2) {
+	function finishProc(res2) {
 		processed_accs++;
 		new Promise((res1, rej1) => {	if (processed_accs == num_accs) res1();	})
-		.then((results) => { res2(latest_update_str); });
+		.then((results) => { res2(finalObj); });
 	}
 
 	// Output video URL's from a user's most recent Tweets
 	function getVids(results) {
-		let output = "";
+		let output = { };
 
 		if (results.length > 0) { // if tweets were returned
-			let name = results[0].user.name;
-			let screen_name = results[0].user.screen_name;
-			output += `${name} ( @${screen_name} ):\n`;
+			output.name = results[0].user.name;
+			output.screen_name = results[0].user.screen_name;
+			output.vids = []
+			// output += `${name} ( @${screen_name} ):\n`;
 
 			let videos_found = false;
 			for (i in results) { // look at each tweet
@@ -88,18 +88,12 @@ function saveUsers(data, num_accs, promiseObj) {
 							max_bitrate = variants[j].bitrate;
 						}
 					} // for (j in variants)
-					output += `${vid_obj.url}\n`;
+					output.vids.push(`${vid_obj.url}`);
 				} // if (entities != undefined && ...
 			} // for (i in data)
-
-			if (videos_found) { // only output if account Tweeted videos
-				console.log(++num);
-				console.log(output);
-				return output + "\n";
-			}
 		}
 
-		return "";
+		return output;
 	}
 
 	new Promise((res, rej) => {
@@ -109,18 +103,16 @@ function saveUsers(data, num_accs, promiseObj) {
 
 			T.get("statuses/user_timeline",
 			{screen_name: name, exclude_replies: true, count: 20}).then((results) => {
-				latest_update_str += getVids(results);
-				finishStr(res);
+				finalObj.results.push(getVids(results));
+				finishProc(res);
 			}).catch((err) => { // invalid/deleted user
 				console.log("invalid user");
-				finishStr(res);
+				finishProc(res);
 			});
 		}
 
 	}).then((results) => {
-		promiseObj.resolve("results:\n**********\n" + results);
-	}).catch((results) => {
-		console.log(false);
+		promiseObj.resolve(results);
 	});
 }
 
@@ -131,8 +123,8 @@ function test(results) {
 }
 
 // init();
+// update(5);
+
 // T.get("statuses/user_timeline", {screen_name: "VideosFolder", exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
 // T.get("statuses/user_timeline", {screen_name: "brendohare", exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
 // getVids(friendsList);
-
-// update(5);
