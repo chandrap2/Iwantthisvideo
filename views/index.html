@@ -22,38 +22,57 @@
 	</div>
 
 	<script type="text/javascript">
-		button = document.getElementById("retrieve");
-		results_area = document.getElementById("results");
+		console.log("hello");
+		let lol = 0;
 
-		button.addEventListener("click", () => {
-			console.log("button pressed");
-
+		let tmr = setInterval(() => {
 			let req = new XMLHttpRequest();
-			req.open("GET", "http://localhost:3001/getvids")
+			req.open("GET", "http://localhost:3001/check_users");
 			req.onload = () => {
+				lol++;
 				let results = JSON.parse(req.responseText);
-				// console.log(results);
-				outputResults(results);
-				console.log("results printed");
+				if (results.users_found) {
+					console.log(`${results.num_users} users found`);
+					console.log("timer done");
+					clearInterval(tmr);
+				}
 			};
 			req.send();
-		});
+		}, 1000);
 
-		let outputResults = (data) => {
-			for (let user of data.results) {
-				if (user.name && user.vids.length > 0) {
-					let userInfo = `${user.name} ( @${user.screen_name} )`;
-					results_area.insertAdjacentHTML("beforeend", `<h3>${userInfo}</h3>`);
 
-					user.vids.forEach(v => {
-						results_area.
-							insertAdjacentHTML("beforeend", `<a href = ${v}><p>${v}</p></a>`)
-					});
-
-					results_area.insertAdjacentHTML("beforeend", "</br>");
-				}
-			}
-		};
+		// button = document.getElementById("retrieve");
+		// results_area = document.getElementById("results");
+		//
+		// button.addEventListener("click", () => {
+		// 	console.log("button pressed");
+		//
+		// 	let req = new XMLHttpRequest();
+		// 	req.open("GET", "http://localhost:3001/getvids")
+		// 	req.onload = () => {
+		// 		let results = JSON.parse(req.responseText);
+		// 		// console.log(results);
+		// 		outputResults(results);
+		// 		console.log("results printed");
+		// 	};
+		// 	req.send();
+		// });
+		//
+		// let outputResults = (data) => {
+		// 	for (let user of data.results) {
+		// 		if (user.name && user.vids.length > 0) {
+		// 			let userInfo = `${user.name} ( @${user.screen_name} )`;
+		// 			results_area.insertAdjacentHTML("beforeend", `<h3>${userInfo}</h3>`);
+		//
+		// 			user.vids.forEach(v => {
+		// 				results_area.
+		// 					insertAdjacentHTML("beforeend", `<a href = ${v}><p>${v}</p></a>`)
+		// 			});
+		//
+		// 			results_area.insertAdjacentHTML("beforeend", "</br>");
+		// 		}
+		// 	}
+		// };
 	</script>
 </body>
 </html>

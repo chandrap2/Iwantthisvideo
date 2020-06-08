@@ -8,8 +8,8 @@ const app = express()
 const port = 3001
 app.set("views", __dirname)
 app.use(express.static(__dirname + "/../client_scripts"))
-// app.engine('html', require('ejs').renderFile);
-// app.set("view engine", "html")
+
+let users = { }, valid_users = false;
 
 // Listen on port 3000
 app.listen(port, () => {
@@ -20,6 +20,23 @@ app.listen(port, () => {
 // Home page
 app.get("/", (request, response) => {
 	response.sendFile("index.html", {root: __dirname + "/../views"});
+
+	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200}).then((results) => {
+		users = results;
+		valid_users = true;
+		// console.log("done acquiring users", users.users.length);
+	});
+
+});
+
+app.get("/check_users", (request, response) => {
+	result = { users_found: null, num_users: null }
+	if (valid_users) {
+		result.users_found = true;
+		result.num_users = users.users.length;
+	}
+
+	response.json(result);
 });
 
 // Results page
