@@ -1,11 +1,15 @@
-const express = require("express")
-const app = express()
-const port = 3001
+const Twit = require("twitter-lite");
+var T;
 
 const fs = require("fs");
 
-const Twit = require("twitter-lite");
-var T;
+const express = require("express")
+const app = express()
+const port = 3001
+app.set("views", __dirname)
+app.use(express.static(__dirname + "/../client_scripts"))
+// app.engine('html', require('ejs').renderFile);
+// app.set("view engine", "html")
 
 // Listen on port 3000
 app.listen(port, () => {
@@ -15,8 +19,7 @@ app.listen(port, () => {
 
 // Home page
 app.get("/", (request, response) => {
-	let home = fs.readFileSync("../index.html", "utf8");
-	response.send(home);
+	response.sendFile("index.html", {root: __dirname + "/../views"});
 });
 
 // Results page
@@ -26,10 +29,14 @@ app.get("/getvids", (request, response) => {
 		update(promiseObj);
 		// update(promiseObj, 5);
 	}).then((results) => {
-		response.send(results);
+		console.log("Done")
+		// response.sendFile("test.html", {root: __dirname + "/../views"});
+		response.json(results);
+		// response.send("Lol");
 	}).catch((err) => {
-		response.send(err);
+		// response.send(err);
 	});
+	// response.sendFile("test.html", {root: __dirname + "/../views"});
 });
 
 // Twitter authorization
@@ -98,15 +105,16 @@ function saveUsers(data, num_accs, promiseObj) {
 
 	new Promise((res, rej) => {
 		for (j = 0; j < num_accs; j++) {
-			let friend = data[j], name = friend.screen_name;
+			let friend = data[j];
+			let name = friend.name, screen_name = friend.screen_name;
 			// console.log(name)
 
 			T.get("statuses/user_timeline",
-			{screen_name: name, exclude_replies: true, count: 20}).then((results) => {
+			{screen_name: screen_name, exclude_replies: true, count: 20}).then((results) => {
 				finalObj.results.push(getVids(results));
 				finishProc(res);
 			}).catch((err) => { // invalid/deleted user
-				console.log("invalid user");
+				console.log(`invalid user: ${name} @(${screen_name})`);
 				finishProc(res);
 			});
 		}
