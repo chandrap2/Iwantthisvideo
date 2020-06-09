@@ -8,6 +8,7 @@ const app = express()
 const port = 3001
 app.set("views", __dirname)
 app.use(express.static(__dirname + "/../client_scripts"))
+app.use(express.static(__dirname + "/../styles"))
 
 let accs = [];
 
