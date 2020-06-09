@@ -4,56 +4,15 @@
 	<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My HTML Page</title>
-  <!-- <link rel="stylesheet" type="text/css" title="Cool stylesheet" href="style.css">
-	<script src = "code/client.js" async></script> -->
+  <!-- <link rel="stylesheet" type="text/css" title="Cool stylesheet" href="style.css"> -->
+	<script src = "client.js" async></script>
 </head>
+
 <body>
-	<div id="title">
-		<h1>Video links</h1>
-	</div>
-	<!-- <a href="/getvids"> -->
-	<button id="retrieve">
-		Retrieve videos
-	</button>
+	<div id="title"> <h1>Video links</h1> </div>
+	<div id="input"> </div>
 	</br>
 	</br>
-	<!-- </a> -->
-	<div id="results">
-	</div>
-
-	<script type="text/javascript">
-		button = document.getElementById("retrieve");
-		results_area = document.getElementById("results");
-
-		button.addEventListener("click", () => {
-			console.log("button pressed");
-
-			let req = new XMLHttpRequest();
-			req.open("GET", "http://localhost:3001/getvids")
-			req.onload = () => {
-				let results = JSON.parse(req.responseText);
-				// console.log(results);
-				outputResults(results);
-				console.log("results printed");
-			};
-			req.send();
-		});
-
-		let outputResults = (data) => {
-			for (let user of data.results) {
-				if (user.name && user.vids.length > 0) {
-					let userInfo = `${user.name} ( @${user.screen_name} )`;
-					results_area.insertAdjacentHTML("beforeend", `<h3>${userInfo}</h3>`);
-
-					user.vids.forEach(v => {
-						results_area.
-							insertAdjacentHTML("beforeend", `<a href = ${v}><p>${v}</p></a>`)
-					});
-
-					results_area.insertAdjacentHTML("beforeend", "</br>");
-				}
-			}
-		};
-	</script>
+	<div id="results"> </div>
 </body>
 </html>
