@@ -4,87 +4,15 @@
 	<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My HTML Page</title>
-  <!-- <link rel="stylesheet" type="text/css" title="Cool stylesheet" href="style.css">
-	<script src = "code/client.js" async></script> -->
+  <!-- <link rel="stylesheet" type="text/css" title="Cool stylesheet" href="style.css"> -->
+	<script src = "client.js" async></script>
 </head>
+
 <body>
-	<div id="title">
-		<h1>Video links</h1>
-	</div>
-	<div id="input"></div>
-	<!-- <button id="retrieve">
-		Retrieve videos
-	</button> -->
-
+	<div id="title"> <h1>Video links</h1> </div>
+	<div id="input"> </div>
 	</br>
 	</br>
-
-	<div id="results"></div>
-
-	<script type="text/javascript">
-		input = document.getElementById("input");
-		input.innerHTML = "<p>Loading...</p>";
-		buttonHTML = "<button id=\"retrieve\">Retrieve videos</button>"
-
-		let btn, results_area;
-		let num_users;
-
-		let tmr = setInterval(() => {
-			let req = new XMLHttpRequest();
-			req.open("GET", "http://localhost:3001/check_users");
-			req.onload = () => {
-				// console.log(req.responseText);
-				let results = JSON.parse(req.responseText);
-
-				if (results.users_found) {
-					console.log(`${results.num_users} users found`);
-					console.log("timer done");
-					num_users = results.num_users;
-					input.innerHTML = buttonHTML;
-
-					new Promise((res, rej) => {
-						clearInterval(tmr);
-						res()
-					}).then(() => mn());
-				}
-			};
-			req.send();
-		}, 1000);
-
-		function mn() {
-			btn = document.getElementById("retrieve");
-			results_area = document.getElementById("results");
-
-			btn.addEventListener("click", () => {
-				// console.log("button pressed");
-				for (i = 0; i < 5; i++) {
-					let req = new XMLHttpRequest();
-					req.open("GET", `http://localhost:3001/getvids?user_index=${i}`)
-					req.onload = () => {
-						let results = JSON.parse(req.responseText);
-						outputResults(results);
-						// console.log(results);
-					};
-					req.send();
-				}
-			});
-		}
-
-		let outputResults = (data) => {
-			let user = data;
-			if (user.name && user.vids.length > 0) {
-				let userInfo = `${user.name} ( @${user.screen_name} )`;
-				results_area.insertAdjacentHTML("beforeend", `<h3>${userInfo}</h3>`);
-
-				user.vids.forEach(v => {
-					results_area.
-					insertAdjacentHTML("beforeend", `<a href = ${v}><p>${v}</p></a>`)
-				});
-
-				results_area.insertAdjacentHTML("beforeend", "</br>");
-			}
-		}
-
-	</script>
+	<div id="results"> </div>
 </body>
 </html>

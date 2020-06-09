@@ -9,9 +9,9 @@ const port = 3001
 app.set("views", __dirname)
 app.use(express.static(__dirname + "/../client_scripts"))
 
-let users = { }, valid_users = false;
+let accs = [];
 
-// Listen on port 3000
+// Listen on port 3001
 app.listen(port, () => {
 	init();
 	console.log(`Server listening at http://localhost:${port}`);
@@ -21,32 +21,24 @@ app.listen(port, () => {
 app.get("/", (request, response) => {
 	response.sendFile("index.html", {root: __dirname + "/../views"});
 
-	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200}).then((results) => {
-		users = results.users;
-		valid_users = true;
-	});
+	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
+	.then(results => accs = results.users);
 });
 
-app.get("/check_users", (request, response) => {
-	result = { users_found: null, num_users: null };
-	if (valid_users) {
-		result.users_found = true;
-		result.num_users = users.length;
-		console.log(result);
-	}
-
-	response.json(result);
+// Verifies account list has been assembled
+app.get("/check_accs", (request, response) => {
+	if (accs.length > 0)
+		response.json( {accs_found: true, num_accs: accs.length} );
 });
 
-// Results page
+// Send results
 app.get("/getvids", (request, response) => {
-	let i = request.query.user_index;
-	let user = users[i];
-	// console.log(user);
+	let i = request.query.acc_index;
+	let acc = accs[i];
 
 	T.get("statuses/user_timeline",
-	{screen_name: user.screen_name, exclude_replies: true, count: 20})
-	.then(results => response.json(getVids(results)) );
+	{screen_name: acc.screen_name, exclude_replies: true, count: 20})
+	.then( results => response.json(getVids(results)) );
 });
 
 // Twitter authorization
@@ -54,13 +46,6 @@ function init() {
 	let auth_tokens = fs.readFileSync("./twit_auth.txt", "utf8");
 	auth_tokens = JSON.parse(auth_tokens);
 	T = new Twit(auth_tokens);
-}
-
-// Retrieve list of friends => saveUsers()
-function update(promiseObj, num_accs = -1) {
-	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200}).then((results) => {
-		saveUsers(results, num_accs, promiseObj);
-	}).catch(console.error);
 }
 
 // Output video URL's from a user's most recent Tweets
@@ -71,7 +56,6 @@ function getVids(results) {
 		output.name = results[0].user.name;
 		output.screen_name = results[0].user.screen_name;
 		output.vids = []
-		// output += `${name} ( @${screen_name} ):\n`;
 
 		let videos_found = false;
 		for (i in results) { // look at each tweet
@@ -104,8 +88,6 @@ function test(results) {
 }
 
 // init();
-// update(5);
-
 // T.get("statuses/user_timeline", {screen_name: "VideosFolder", exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
 // T.get("statuses/user_timeline", {screen_name: "brendohare", exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
 // getVids(friendsList);
