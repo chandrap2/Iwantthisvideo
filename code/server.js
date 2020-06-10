@@ -85,10 +85,15 @@ function getVids(results) {
 
 function test(results) {
 	// console.log(data[0].entities.media)
-	console.log(data[0].extended_entities);
+	console.log(results[0].entities.media[0]);
+	console.log(results[0].entities.media[0].sizes);
 }
 
 // init();
-// T.get("statuses/user_timeline", {screen_name: "VideosFolder", exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
+// T.get("statuses/user_timeline",
+// {screen_name: "VideosFolder", exclude_replies: true, count: 5}).then((results) => {
+// 	test(results);
+// });
+
 // T.get("statuses/user_timeline", {screen_name: "brendohare", exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
 // getVids(friendsList);
