@@ -22,6 +22,7 @@ app.listen(port, () => {
 app.get("/", (request, response) => {
 	response.sendFile("index.html", {root: __dirname + "/../views"});
 
+	// Rate limits: 15/15mins
 	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
 	.then(results => accs = results.users);
 });
@@ -37,12 +38,13 @@ app.get("/getvids", (request, response) => {
 	let i = request.query.acc_index;
 	let acc = accs[i];
 
+	// Rate limits: 900/15mins, 100k/day
 	T.get("statuses/user_timeline",
 	{screen_name: acc.screen_name, exclude_replies: true, count: 20})
 	.then( results => response.json(getVids(results)) );
 });
 
-// Twitter authorization
+// Twitter authorization (user auth, lower rate limits)
 function init() {
 	let auth_tokens = fs.readFileSync("./twit_auth.txt", "utf8");
 	auth_tokens = JSON.parse(auth_tokens);
@@ -64,18 +66,21 @@ function getVids(results) {
 			if (entities != undefined &&
 			entities.media[0].type == "video") { // if tweet contains video
 				videos_found = true
+				let thumbnail = results[i].entities.media[0].media_url_https;
+				let vid_obj = { thumbnail: thumbnail };
 
 				let variants = entities.media[0].video_info.variants; // parse through video metadata
 				let max_bitrate = -1
-				let vid_obj = variants[0];
+				let vid = variants[0];
 				for (j in variants) { // output highest quality video url
 					if (variants[j].content_type == "video/mp4" &&
 					variants[j].bitrate > max_bitrate) {
-						vid_obj = variants[j];
+						vid = variants[j];
 						max_bitrate = variants[j].bitrate;
 					}
 				} // for (j in variants)
-				output.vids.push(`${vid_obj.url}`);
+				vid_obj.vid = vid.url;
+				output.vids.push(vid_obj);
 			} // if (entities != undefined && ...
 		} // for (i in data)
 	}
@@ -85,8 +90,7 @@ function getVids(results) {
 
 function test(results) {
 	// console.log(data[0].entities.media)
-	console.log(results[0].entities.media[0]);
-	console.log(results[0].entities.media[0].sizes);
+	console.log(results[0]);
 }
 
 // init();
@@ -94,6 +98,8 @@ function test(results) {
 // {screen_name: "VideosFolder", exclude_replies: true, count: 5}).then((results) => {
 // 	test(results);
 // });
+// T.get("friends/list", {skip_status: true, include_user_entities: true, count: 200})
+// 	.then(results => console.log(results.users[0]));
 
 // T.get("statuses/user_timeline", {screen_name: "brendohare", exclude_replies: true, count: 20}, (err, data, response) => getVids(err, data, response));
 // getVids(friendsList);

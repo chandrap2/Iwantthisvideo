@@ -1,25 +1,57 @@
-body {
-	padding: 0px;
+html {
+	padding: 18px 25px;
 	background-color: #ffffc9;
-	padding: 5px;
+	font-family:'Courier New', Courier, monospace;
+}
+
+#title h1 {
+	font-size: 40px;
+	margin: 0px;
+}
+
+#input {
+	margin-bottom: 10px;
+}
+
+#input #retrieve {
+	/* font-family:'Courier New', Courier, monospace; */
+	background-color: #a8e5ff;
+	color: #7aa8bb;
+	border: none;
+	padding: 15px 25px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 17px;
+	font-weight: bold;
+	border-radius: 10px;
+}
+
+#input #retrieve:hover {
+	background-color: #3391b9;
+	color: #21607a;
+	cursor: pointer;
 }
 
 .result {
-	padding: 10px;
+	padding: 18px;
 	border-style: solid;
 	border-color: #a8e5ff;
+	background-color: #a8e5ff;
 	border-width: 5px;
 	border-radius: 10px;
-	background-color: #a8e5ff;
+	color: #7aa8bb;
+}
+
+.result h2 {
+	margin-top: 0px;
+	margin-bottom: 15px;
 }
 
 video {
-	padding: 5px;
-	border-style: solid;
-	border-color: #85b7cc;
-	border-width: 5px;
-	border-radius: 20px;
-	margin: 10px;
+	padding: 0px;
+	border-radius: 10px;
+	margin-right: 15px;
+	margin-bottom: 10px;
 	object-fit: cover;
 }
 
