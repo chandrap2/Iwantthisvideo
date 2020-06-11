@@ -7,16 +7,17 @@ html {
 #title h1 {
 	font-size: 40px;
 	margin: 0px;
+	color: #1780aa;
 }
 
 #input {
 	margin-bottom: 10px;
 }
 
-#input #retrieve {
+#retrieve {
 	/* font-family:'Courier New', Courier, monospace; */
 	background-color: #a8e5ff;
-	color: #7aa8bb;
+	color: #638897;
 	border: none;
 	padding: 15px 25px;
 	text-align: center;
@@ -26,9 +27,9 @@ html {
 	border-radius: 10px;
 }
 
-#input #retrieve:hover {
+#retrieve:hover {
 	background-color: #3391b9;
-	color: #21607a;
+	color: #174153;
 	cursor: pointer;
 }
 
@@ -39,7 +40,7 @@ html {
 	background-color: #a8e5ff;
 	border-width: 5px;
 	border-radius: 10px;
-	color: #7aa8bb;
+	color: #638897;
 }
 
 .result h2 {

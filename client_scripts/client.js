@@ -32,7 +32,7 @@ let accTimer = setInterval(() => {
 	req.send();
 }, 500);
 
-const ACC_LIMIT = 5;
+const ACC_LIMIT = 20;
 // Handles front end logic
 function mn() {
 	btn = document.getElementById("retrieve");
@@ -42,8 +42,8 @@ function mn() {
 		results_area.innerHTML = ""; // clearing 'results' section
 
 		// for (i = 0; i < 5; i++) {
-		// for (let i = 0; i < ACC_LIMIT; i++) {
-		for (let i = ACC_LIMIT; i >= 0; i--) {
+		for (let i = 0; i < ACC_LIMIT; i++) {
+		// for (let i = ACC_LIMIT; i >= 0; i--) {
 			let req = new XMLHttpRequest(); // AJAX request for each account
 			req.open("GET", `http://localhost:3001/getvids?acc_index=${i}`)
 			req.onload = () => {
