@@ -12,6 +12,7 @@ input.appendChild(loading);
 
 let btn, results_area = document.getElementById("results");
 let num_accs;
+let ACC_LIMIT;
 
 let accTimer = setInterval(() => {
 	let req = new XMLHttpRequest();
@@ -26,39 +27,45 @@ let accTimer = setInterval(() => {
 			document.getElementById("loading").remove();
 			input.insertAdjacentElement("beforeend", retrieveBtn);
 			
-			new Promise((res, rej) => {
-				clearInterval(accTimer); res();
-			}).then(() => mn())
-			.catch(err => console.log(err));
+			clearInterval(accTimer);
+			ACC_LIMIT = 10;
+			mn();
 		}
 	};
 	req.send();
 }, 500);
 
-let ACC_LIMIT = 20;
 // Handles front end logic
 function mn() {
-	// btn = document.getElementById("retrieve");
-	
-	// btn.addEventListener("click", () => {
-		retrieveBtn.addEventListener("click", () => {
-			input.appendChild(loading);
-			results_area.innerHTML = ""; // clearing 'results' section
-			
-			// for (i = 0; i < 5; i++) {
-				for (let i = 0; i < ACC_LIMIT; i++) {
-					// for (let i = ACC_LIMIT; i >= 0; i--) {
-						let req = new XMLHttpRequest(); // AJAX request for each account
-						req.open("GET", `http://localhost:3001/getvids?acc_index=${i}`)
-						req.onload = () => {
-							let results = JSON.parse(req.responseText);
-							outputResults(results);
-							if (results.id == ACC_LIMIT - 1)
-								document.getElementById("loading").remove();
-						};
-						req.send();
-					}
-				});
+	retrieveBtn.addEventListener("click", () => {
+		input.removeChild(retrieveBtn);
+		input.appendChild(loading);
+		results_area.innerHTML = ""; // clearing 'results' section
+		
+		for (let i = 0; i < ACC_LIMIT; i++) {
+			let req = new XMLHttpRequest(); // AJAX request for each account
+			req.open("GET", `http://localhost:3001/getvids?acc_index=${i}`)
+			req.onload = () => {
+				let results = JSON.parse(req.responseText);
+				outputResults(results);
+				console.log(results.id); // for comparing response order to request order
+				
+				if (results.id == ACC_LIMIT - 1) {
+					/*
+					Event queue order mostly corresponds to 'req.send()' order,
+					but not quite guaranteed, so Timeout further ensures
+					button is reloaded after last requested Twitter account
+					results have been rendered.
+					*/
+					setTimeout(() => {
+						document.getElementById("loading").remove();
+						input.appendChild(retrieveBtn);
+					}, 500);
+				}
+			};
+			req.send();
+		}
+	});
 }
 
 // Outputs to 'result' section
@@ -67,6 +74,8 @@ let outputResults = (data) => {
 	if (acc.name && acc.vids.length > 0) {
 		let result_box = document.createElement("div");
 		result_box.className = "result";
+
+		let frag = document.createDocumentFragment();
 
 		let accInfo = document.createElement("h2");
 		accInfo.innerText = `${acc.name} (@${acc.screen_name})`;
