@@ -1,4 +1,5 @@
 twit_auth.txt
 node_modules
 *.json
+*.code-workspace
 

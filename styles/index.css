@@ -10,18 +10,27 @@ html {
 	color: #1780aa;
 }
 
+#loading {
+	display: inline-block;
+	font-size: 20px;
+	font-weight: bolder;
+	color: #1780aa;
+	margin-bottom: 10px;
+}
+
 #input {
 	margin-bottom: 10px;
 }
 
 #retrieve {
 	/* font-family:'Courier New', Courier, monospace; */
+	display: inline-block;
 	background-color: #a8e5ff;
 	color: #638897;
 	border: none;
 	padding: 15px 25px;
+	margin-right: 10px;
 	text-align: center;
-	text-decoration: none;
 	font-size: 17px;
 	font-weight: bold;
 	border-radius: 10px;

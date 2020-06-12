@@ -24,7 +24,8 @@ app.get("/", (request, response) => {
 
 	// Rate limits: 15/15mins
 	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
-	.then(results => accs = results.users);
+		.then(results => accs = results.users)
+		.catch(err => console.log(err));
 });
 
 // Verifies account list has been assembled
@@ -41,7 +42,11 @@ app.get("/getvids", (request, response) => {
 	// Rate limits: 900/15mins, 100k/day
 	T.get("statuses/user_timeline",
 	{screen_name: acc.screen_name, exclude_replies: true, count: 20})
-	.then( results => response.json(getVids(results)) );
+		.then(results => {
+			let final = getVids(results);
+			final.id = i;
+			response.json(final);
+		}).catch(err => console.log(err));
 });
 
 // Twitter authorization (user auth, lower rate limits)
