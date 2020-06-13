@@ -1,7 +1,20 @@
 html {
-	padding: 18px 25px;
+	padding: 20px 25px;
 	background-color: #ffffc9;
-	font-family:'Courier New', Courier, monospace;
+}
+
+body {
+	margin: 0px;
+	padding: 10px;
+}
+
+body > * {
+	margin-bottom: 20px;
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+#title {
+	margin-bottom: 13px;
 }
 
 #title h1 {
@@ -10,30 +23,27 @@ html {
 	color: #1780aa;
 }
 
-#loading {
+#input * {
 	display: inline-block;
-	font-size: 20px;
-	font-weight: bolder;
-	color: #1780aa;
-	margin-bottom: 10px;
-}
-
-#input {
-	margin-bottom: 10px;
-}
-
-#retrieve {
-	/* font-family:'Courier New', Courier, monospace; */
-	display: inline-block;
-	background-color: #a8e5ff;
 	color: #638897;
-	border: none;
-	padding: 15px 25px;
-	margin-right: 10px;
+	padding: 13px 22px;
+	margin: 0px 10px 0px 0px;
 	text-align: center;
-	font-size: 17px;
+	font-size: 20px;
 	font-weight: bold;
+	border: none;
 	border-radius: 10px;
+}
+
+#loading {
+	padding: 10px 19px;
+	border-style: solid;
+	border-width: 3px;
+}
+
+#retrieve { 
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	background-color: #a8e5ff;
 }
 
 #retrieve:hover {
@@ -42,8 +52,14 @@ html {
 	cursor: pointer;
 }
 
+#results {
+	margin: 0px;
+}
+
 .result {
+	display: inline-block; /* to wrap video elements*/
 	padding: 18px;
+	margin-bottom: 15px;
 	border-style: solid;
 	border-color: #a8e5ff;
 	background-color: #a8e5ff;

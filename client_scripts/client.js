@@ -1,6 +1,6 @@
 let loading = document.createElement("p");
 loading.id = "loading";
-loading.innerText = "Loading...";
+loading.innerText = "Loading";
 
 let retrieveBtn = document.createElement("button");
 retrieveBtn.className = "button";
