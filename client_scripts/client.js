@@ -1,6 +1,8 @@
 let loading = document.createElement("p");
 loading.id = "loading";
-loading.innerText = "Loading...";
+loading.innerText = "Loading";
+
+let lineBreak = document.createElement("br");
 
 let retrieveBtn = document.createElement("button");
 retrieveBtn.className = "button";
@@ -28,7 +30,7 @@ let accTimer = setInterval(() => {
 			input.insertAdjacentElement("beforeend", retrieveBtn);
 			
 			clearInterval(accTimer);
-			ACC_LIMIT = 10;
+			ACC_LIMIT = num_accs;
 			mn();
 		}
 	};
@@ -48,7 +50,7 @@ function mn() {
 			req.onload = () => {
 				let results = JSON.parse(req.responseText);
 				outputResults(results);
-				console.log(results.id); // for comparing response order to request order
+				// console.log(results.id); // for comparing response order to request order
 				
 				if (results.id == ACC_LIMIT - 1) {
 					/*
@@ -75,24 +77,40 @@ let outputResults = (data) => {
 		let result_box = document.createElement("div");
 		result_box.className = "result";
 
-		let frag = document.createDocumentFragment();
-
 		let accInfo = document.createElement("h2");
 		accInfo.innerText = `${acc.name} (@${acc.screen_name})`;
 		result_box.appendChild(accInfo);
-
+		result_box.appendChild(document.createElement("br"));
+		
 		let vid_box;
-		acc.vids.forEach(v => {
+		for (let i in acc.vids) {
 			vid_box = document.createElement("video");
 			vid_box.setAttribute("width", 200);
 			vid_box.setAttribute("height", 200);
 			vid_box.setAttribute("controls", true);
-			vid_box.setAttribute("src", v.vid);
-			// vid_box.setAttribute("poster", v.thumbnail);
-			// vid_box.setAttribute("autoplay", true); // Instant Death
+			vid_box.setAttribute("src", acc.vids[i].vid);
+			
+			// dynamic video content margins
+			vid_box.style.marginLeft = "0px";
+			vid_box.style.marginTop = "0px";
+			if (acc.vids.length <= 8) {
+				vid_box.style.marginRight = (
+					(i == acc.vids.length - 1) ? "0px" : "15px"
+				); document
+
+				vid_box.style.marginBottom = "0px";
+			} else {
+				vid_box.style.marginRight = (
+					(i % 8 == 7) ? "0px" : "15px"
+				);
+
+				vid_box.style.marginBottom = (
+					(i > acc.vids.length - (acc.vids.length % 8) - 1) ? "0px" : "15px"
+				);
+			}
 
 			result_box.appendChild(vid_box);
-		});
+		}
 
 		results_area.appendChild(result_box);
 		results_area.appendChild(document.createElement("br"));
