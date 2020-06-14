@@ -13,8 +13,7 @@ let input = document.getElementById("input");
 input.appendChild(loading);
 
 let btn, results_area = document.getElementById("results");
-let num_accs;
-let ACC_LIMIT;
+let num_accs, ACC_LIMIT;
 
 let accTimer = setInterval(() => {
 	let req = new XMLHttpRequest();
@@ -30,7 +29,8 @@ let accTimer = setInterval(() => {
 			input.insertAdjacentElement("beforeend", retrieveBtn);
 			
 			clearInterval(accTimer);
-			ACC_LIMIT = num_accs;
+			// ACC_LIMIT = num_accs;
+			ACC_LIMIT = 10;
 			mn();
 		}
 	};
@@ -89,25 +89,6 @@ let outputResults = (data) => {
 			vid_box.setAttribute("height", 200);
 			vid_box.setAttribute("controls", true);
 			vid_box.setAttribute("src", acc.vids[i].vid);
-			
-			// dynamic video content margins
-			vid_box.style.marginLeft = "0px";
-			vid_box.style.marginTop = "0px";
-			if (acc.vids.length <= 8) {
-				vid_box.style.marginRight = (
-					(i == acc.vids.length - 1) ? "0px" : "15px"
-				); document
-
-				vid_box.style.marginBottom = "0px";
-			} else {
-				vid_box.style.marginRight = (
-					(i % 8 == 7) ? "0px" : "15px"
-				);
-
-				vid_box.style.marginBottom = (
-					(i > acc.vids.length - (acc.vids.length % 8) - 1) ? "0px" : "15px"
-				);
-			}
 
 			result_box.appendChild(vid_box);
 		}
