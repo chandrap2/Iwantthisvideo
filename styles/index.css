@@ -56,25 +56,27 @@ body > * {
 	margin: 0px;
 }
 
-#results > * {
+.result {
 	max-width: 1712px; /* each row contains 8 videos */
 	display: inline-block; /* to wrap video elements */
 	padding: 7px;
 	margin-bottom: 20px;
-	border-style: solid;
-	border-color: #a8e5ff;
 	background-color: #a8e5ff;
-	border-width: 0px;
 	border-radius: 10px;
 	color: #638897;
+	overflow: hidden;
 }
 
 .result h2 {
 	display: inline-block;
-	/* margin-top: 0px;
-	margin-bottom: 7px; */
 	margin: 7px;
-	/* padding: auto 8px 8px auto; */
+}
+
+.result:hover {
+	/* height: 38px; */
+	background-color: #3391b9;
+	color: #174153;
+	cursor: pointer;
 }
 
 video {
@@ -82,6 +84,7 @@ video {
 	border-radius: 10px;
 	margin: 7px;
 	object-fit: cover;
+	cursor: auto;
 }
 
 video:fullscreen {
