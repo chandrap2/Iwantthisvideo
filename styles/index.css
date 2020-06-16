@@ -14,11 +14,12 @@ body > * {
 }
 
 #title {
+
 	margin-bottom: 13px;
 }
 
 #title h1 {
-	font-size: 40px;
+	font-size: 55px;
 	margin: 0px;
 	color: #1780aa;
 }
@@ -67,9 +68,22 @@ body > * {
 	overflow: hidden;
 }
 
-.result h2 {
+.acc_header {
 	display: inline-block;
+	padding: 0px;
 	margin: 7px;
+}
+
+.acc_header > * {
+	display: inline-block;
+	vertical-align: middle;
+	padding: 0px;
+	margin: 0px;
+	border-radius: 5px;
+}
+
+.acc_header img {
+	margin-right: 14px;
 }
 
 .result:hover {

@@ -13,7 +13,7 @@ let input = document.getElementById("input");
 input.appendChild(loading);
 
 let btn, results_area = document.getElementById("results");
-let num_accs, ACC_LIMIT;
+let accs, ACC_LIMIT;
 
 let accTimer = setInterval(() => {
 	let req = new XMLHttpRequest();
@@ -21,9 +21,9 @@ let accTimer = setInterval(() => {
 	req.onload = () => {
 		let results = JSON.parse(req.responseText);
 
-		if (results.accs_found) {
-			num_accs = results.num_accs;
-			console.log(`${num_accs} accs found`);
+		if (results.accs.length > 0) {
+			accs = results.accs;
+			console.log(`${accs.length} accs found`);
 
 			document.getElementById("loading").remove();
 			input.insertAdjacentElement("beforeend", retrieveBtn);
@@ -72,38 +72,50 @@ function mn() {
 
 // Outputs to 'result' section
 let outputResults = (data) => {
-	let acc = data;
-	if (acc.name && acc.vids.length > 0) {
+	let acc = accs[data.id];
+	
+	if (acc.name && data.vids.length > 0) {
 		let result_box = document.createElement("div");
 		result_box.className = "result";
 
-		let accInfo = document.createElement("h2");
+		let acc_header = document.createElement("div");
+		acc_header.className = "acc_header";
+
+		let accInfo = document.createElement("h1");
 		accInfo.innerText = `${acc.name} (@${acc.screen_name})`;
-		result_box.appendChild(accInfo);
+		let profile_pic = document.createElement("img");
+		profile_pic.setAttribute("src", acc.profile_image_url);
+
+		acc_header.appendChild(profile_pic);
+		acc_header.appendChild(accInfo);
+
+		result_box.appendChild(acc_header);
 		result_box.appendChild(document.createElement("br"));
 
 		let vid_box;
-		for (let i in acc.vids) {
+		let vids = document.createElement("div");
+		for (let i in data.vids) {
 			vid_box = document.createElement("video");
 			vid_box.setAttribute("width", 200);
 			vid_box.setAttribute("height", 200);
 			vid_box.setAttribute("controls", true);
-			vid_box.setAttribute("src", acc.vids[i].vid);
-			vid_box.style.display = "none";
+			vid_box.setAttribute("src", data.vids[i].vid);
 
-			result_box.appendChild(vid_box);
+			vids.appendChild(vid_box);
 		}
-		result_box.style.height = "38px";
+		vids.style.display = "none";
+		result_box.appendChild(vids);
+		// result_box.style.height = "38px";
 
 		result_box.addEventListener("click", () => {
-			dropped_down = (result_box.style.height == "");
+			let vids = result_box.children[2];
+			dropped_down = (vids.style.display == "");
 
-			for (let elem of result_box.children) {
-				if (elem.tagName == "VIDEO")
-					elem.style.display = dropped_down ? "none" : "";
+			if (dropped_down) {
+				vids.style.display = "none";
+			} else {
+				vids.style.display = "";
 			}
-
-			result_box.style.height = dropped_down ? "38px" : "";
 		});
 
 		results_area.appendChild(result_box);

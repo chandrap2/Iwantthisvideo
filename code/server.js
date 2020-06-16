@@ -30,8 +30,7 @@ app.get("/", (request, response) => {
 
 // Verifies account list has been assembled
 app.get("/check_accs", (request, response) => {
-	if (accs.length > 0)
-		response.json( {accs_found: true, num_accs: accs.length} );
+	if (accs.length > 0) response.json( {accs: accs} );
 });
 
 // Send results
@@ -41,7 +40,7 @@ app.get("/getvids", (request, response) => {
 
 	// Rate limits: 900/15mins, 100k/day
 	T.get("statuses/user_timeline",
-	{screen_name: acc.screen_name, exclude_replies: true, count: 20})
+	{screen_name: acc.screen_name, exclude_replies: true, trim_user: true, count: 20})
 		.then(results => {
 			let final = getVids(results);
 			final.id = i;
@@ -61,8 +60,8 @@ function getVids(results) {
 	let output = { };
 
 	if (results.length > 0) { // if tweets were returned
-		output.name = results[0].user.name;
-		output.screen_name = results[0].user.screen_name;
+		// output.name = results[0].user.name;
+		// output.screen_name = results[0].user.screen_name;
 		output.vids = []
 
 		let videos_found = false;
@@ -100,7 +99,7 @@ function test(results) {
 
 // init();
 // T.get("statuses/user_timeline",
-// {screen_name: "VideosFolder", exclude_replies: true, count: 5}).then((results) => {
+// {screen_name: "VideosFolder", exclude_replies: true, count: 5, trim_user: true}).then((results) => {
 // 	test(results);
 // });
 // T.get("friends/list", {skip_status: true, include_user_entities: true, count: 200})
