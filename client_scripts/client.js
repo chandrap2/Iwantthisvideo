@@ -14,22 +14,22 @@ input.appendChild(loading);
 
 let btn, results_area = document.getElementById("results");
 let accs, ACC_LIMIT;
+let j = 0; // count how many accounts have been processed
 
 let accTimer = setInterval(() => {
 	let req = new XMLHttpRequest();
 	req.open("GET", "http://localhost:3001/check_accs");
 	req.onload = () => {
 		let results = JSON.parse(req.responseText);
-
+		
 		if (results.accs.length > 0) {
 			accs = results.accs;
 			console.log(`${accs.length} accs found`);
-
-			document.getElementById("loading").remove();
-			input.insertAdjacentElement("beforeend", retrieveBtn);
+			
+			input.removeChild(loading);
+			input.appendChild(retrieveBtn);
 
 			clearInterval(accTimer);
-			// ACC_LIMIT = num_accs;
 			ACC_LIMIT = 50;
 			mn();
 		}
@@ -40,6 +40,7 @@ let accTimer = setInterval(() => {
 // Handles front end logic
 function mn() {
 	retrieveBtn.addEventListener("click", () => {
+		j = 0;
 		input.removeChild(retrieveBtn);
 		input.appendChild(loading);
 		results_area.innerHTML = ""; // clearing 'results' section
@@ -50,15 +51,9 @@ function mn() {
 			req.onload = () => {
 				let results = JSON.parse(req.responseText);
 				outputResults(results);
-				// console.log(results.id); // for comparing response order to request order
+				// console.log(j + 1); // for comparing response order to request order
 
-				if (results.id == ACC_LIMIT - 1) {
-					/*
-					Event queue order mostly corresponds to 'req.send()' order,
-					but not quite guaranteed, so Timeout further ensures
-					button is reloaded after last requested Twitter account
-					results have been rendered.
-					*/
+				if (++j == ACC_LIMIT) {
 					setTimeout(() => {
 						document.getElementById("loading").remove();
 						input.appendChild(retrieveBtn);
@@ -105,7 +100,6 @@ let outputResults = (data) => {
 		}
 		vids.style.display = "none";
 		result_box.appendChild(vids);
-		// result_box.style.height = "38px";
 
 		result_box.addEventListener("click", () => {
 			let vids = result_box.children[2];
