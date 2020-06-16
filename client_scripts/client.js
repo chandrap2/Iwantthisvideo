@@ -30,7 +30,7 @@ let accTimer = setInterval(() => {
 			
 			clearInterval(accTimer);
 			// ACC_LIMIT = num_accs;
-			ACC_LIMIT = 10;
+			ACC_LIMIT = 50;
 			mn();
 		}
 	};
@@ -92,6 +92,11 @@ let outputResults = (data) => {
 
 			result_box.appendChild(vid_box);
 		}
+		result_box.style.height = "38px";
+		result_box.addEventListener("click", () => {
+			let h = result_box.style.height;
+			result_box.style.height = (h == "") ? "38px" : "";
+		});
 
 		results_area.appendChild(result_box);
 		results_area.appendChild(document.createElement("br"));
