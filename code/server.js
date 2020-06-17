@@ -45,7 +45,11 @@ app.get("/getvids", (request, response) => {
 			let final = getVids(results);
 			final.id = i;
 			response.json(final);
-		}).catch(err => console.log(err));
+		}).catch(err => {
+			err = { };
+			err.id = i;
+			response.json(err);
+		});
 });
 
 // Twitter authorization (user auth, lower rate limits)
@@ -61,30 +65,22 @@ function getVids(results) {
 	
 	if (results.length > 0) { // if tweets were returned
 		output.vids = []
-		// output.name = results[0].user.name;
-		// output.screen_name = results[0].user.screen_name;
 
-		let videos_found = false;
 		for (i in results) { // look at each tweet
 			let entities = results[i].extended_entities
 			if (entities != undefined &&
 			entities.media[0].type == "video") { // if tweet contains video
-				videos_found = true
 				let thumbnail = results[i].entities.media[0].media_url_https;
 				let vid_obj = { thumbnail: thumbnail };
 
 				let variants = entities.media[0].video_info.variants; // parse through video metadata
-				let max_bitrate = -1
-				let vid = variants[0];
 				for (j in variants) { // output highest quality video url
-					if (variants[j].content_type == "video/mp4" &&
-					variants[j].bitrate > max_bitrate) {
-						vid = variants[j];
-						max_bitrate = variants[j].bitrate;
+					if (variants[j].content_type == "video/mp4") {
+						vid_obj.vid = variants[j].url;
+						output.vids.push(vid_obj);
+						break;
 					}
 				} // for (j in variants)
-				vid_obj.vid = vid.url;
-				output.vids.push(vid_obj);
 			} // if (entities != undefined && ...
 		} // for (i in data)
 	}
