@@ -1,8 +1,6 @@
 let loading = document.createElement("p");
 loading.id = "loading";
-loading.innerText = "Loading";
-
-let lineBreak = document.createElement("br");
+loading.textContent = "Loading";
 
 let retrieveBtn = document.createElement("button");
 retrieveBtn.className = "button";
@@ -12,7 +10,7 @@ retrieveBtn.textContent = "Retrieve videos";
 let input = document.getElementById("input");
 input.appendChild(loading);
 
-let btn, results_area = document.getElementById("results");
+let results_area = document.getElementById("results");
 let accs, ACC_LIMIT;
 let j = 0; // count how many accounts have been processed
 
@@ -24,13 +22,32 @@ let accTimer = setInterval(() => {
 		
 		if (results.accs.length > 0) {
 			accs = results.accs;
-			console.log(`${accs.length} accs found`);
+			accs.forEach(acc => {
+				let box = document.createElement("div");
+				box.className = "result";
+
+				let acc_header = document.createElement("div");
+				acc_header.className = "acc_header";
+				
+				let accInfo = document.createElement("h1");
+				accInfo.textContent = `${acc.name} (@${acc.screen_name})`;
+				let prof_pic = document.createElement("img");
+				prof_pic.setAttribute("src", acc.profile_image_url_https);
+
+				acc_header.appendChild(prof_pic);
+				acc_header.appendChild(accInfo);
+				box.appendChild(acc_header);
+				box.appendChild(document.createElement("br"));
+				
+				acc.box = box;
+			});
+			console.log(`done processing, ${accs.length} accs found`);
 			
 			input.removeChild(loading);
 			input.appendChild(retrieveBtn);
 
 			clearInterval(accTimer);
-			ACC_LIMIT = 50;
+			ACC_LIMIT = accs.length;
 			mn();
 		}
 	};
@@ -49,11 +66,13 @@ function mn() {
 			let req = new XMLHttpRequest(); // AJAX request for each account
 			req.open("GET", `http://localhost:3001/getvids?acc_index=${i}`)
 			req.onload = () => {
+				j++;
+				console.log(j);
 				let results = JSON.parse(req.responseText);
 				outputResults(results);
 				// console.log(j + 1); // for comparing response order to request order
 
-				if (++j == ACC_LIMIT) {
+				if (j == ACC_LIMIT) {
 					setTimeout(() => {
 						document.getElementById("loading").remove();
 						input.appendChild(retrieveBtn);
@@ -70,25 +89,9 @@ let outputResults = (data) => {
 	let acc = accs[data.id];
 	
 	if (acc.name && data.vids.length > 0) {
-		let result_box = document.createElement("div");
-		result_box.className = "result";
+		let box = acc.box;
 
-		let acc_header = document.createElement("div");
-		acc_header.className = "acc_header";
-
-		let accInfo = document.createElement("h1");
-		accInfo.innerText = `${acc.name} (@${acc.screen_name})`;
-		let profile_pic = document.createElement("img");
-		profile_pic.setAttribute("src", acc.profile_image_url);
-
-		acc_header.appendChild(profile_pic);
-		acc_header.appendChild(accInfo);
-
-		result_box.appendChild(acc_header);
-		result_box.appendChild(document.createElement("br"));
-
-		let vid_box;
-		let vids = document.createElement("div");
+		let vids = document.createElement("div"), vid_box;
 		for (let i in data.vids) {
 			vid_box = document.createElement("video");
 			vid_box.setAttribute("width", 200);
@@ -99,20 +102,16 @@ let outputResults = (data) => {
 			vids.appendChild(vid_box);
 		}
 		vids.style.display = "none";
-		result_box.appendChild(vids);
+		box.appendChild(vids);
 
-		result_box.addEventListener("click", () => {
-			let vids = result_box.children[2];
+		box.addEventListener("click", () => {
+			let vids = box.children[2];
 			dropped_down = (vids.style.display == "");
 
-			if (dropped_down) {
-				vids.style.display = "none";
-			} else {
-				vids.style.display = "";
-			}
+			vids.style.display = (dropped_down) ? "none" : "";
 		});
 
-		results_area.appendChild(result_box);
+		results_area.appendChild(box);
 		results_area.appendChild(document.createElement("br"));
 	}
 }

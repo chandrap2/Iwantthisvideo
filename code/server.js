@@ -58,11 +58,11 @@ function init() {
 // Output video URL's from a user's most recent Tweets
 function getVids(results) {
 	let output = { };
-
+	
 	if (results.length > 0) { // if tweets were returned
+		output.vids = []
 		// output.name = results[0].user.name;
 		// output.screen_name = results[0].user.screen_name;
-		output.vids = []
 
 		let videos_found = false;
 		for (i in results) { // look at each tweet
