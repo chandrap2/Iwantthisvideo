@@ -74,13 +74,17 @@ function getVids(results) {
 				let vid_obj = { thumbnail: thumbnail };
 
 				let variants = entities.media[0].video_info.variants; // parse through video metadata
+				let max_bitrate = -1
+				let vid = variants[0];
 				for (j in variants) { // output highest quality video url
-					if (variants[j].content_type == "video/mp4") {
-						vid_obj.vid = variants[j].url;
-						output.vids.push(vid_obj);
-						break;
+					if (variants[j].content_type == "video/mp4" &&
+						variants[j].bitrate > max_bitrate) {
+						vid = variants[j];
+						max_bitrate = variants[j].bitrate;
 					}
 				} // for (j in variants)
+				vid_obj.vid = vid.url;
+				output.vids.push(vid_obj);
 			} // if (entities != undefined && ...
 		} // for (i in data)
 	}

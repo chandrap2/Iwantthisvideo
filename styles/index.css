@@ -71,29 +71,36 @@ body > * {
 .acc_header {
 	display: inline-block;
 	padding: 0px;
-	margin: 7px;
+	margin: 0px;
 }
 
 .acc_header > * {
 	display: inline-block;
 	vertical-align: middle;
 	padding: 0px;
-	margin: 0px;
+	margin: 7px;
 	border-radius: 5px;
 }
 
 .acc_header img {
-	margin-right: 14px;
+	width: 48px;
+	height: 48px;
 }
 
-.result:hover {
-	/* height: 38px; */
-	background-color: #3391b9;
-	color: #174153;
+.collapse {
+	display: inline-block;
+	width: 48px;
+	height: 48px;
+	background-color: #638897;
+}
+
+.collapse:hover {
+	background-color: #174153;
 	cursor: pointer;
 }
 
 video {
+	display: inline-block;
 	padding: 0px;
 	border-radius: 10px;
 	margin: 7px;

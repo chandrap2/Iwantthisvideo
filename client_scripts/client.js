@@ -7,6 +7,7 @@ let results_area = document.getElementById("results");
 
 let accs, ACC_LIMIT;
 let j = 0; // count how many accounts have been processed
+const pic_url_mod = "_normal".length;
 
 let accTimer = setInterval(() => {
 	let req = new XMLHttpRequest();
@@ -19,23 +20,46 @@ let accTimer = setInterval(() => {
 			accs.forEach(acc => {
 				let box = document.createElement("div");
 				box.className = "result";
-				box.addEventListener("click", () => {
-					let vids = box.children[2];
-					dropped_down = (vids.style.display == "");
+				// box.addEventListener("click", () => {
+				// 	let vids = box.children[2];
+				// 	dropped_down = (vids.style.display == "");
 
-					vids.style.display = (dropped_down) ? "none" : "";
-				});
-
+				// 	vids.style.display = (dropped_down) ? "none" : "";
+				// });
+				
 				let acc_header = document.createElement("div");
 				acc_header.className = "acc_header";
 				
 				let accInfo = document.createElement("h1");
 				accInfo.textContent = `${acc.name} (@${acc.screen_name})`;
-				let prof_pic = document.createElement("img");
-				prof_pic.setAttribute("src", acc.profile_image_url_https);
 
+				let prof_pic = document.createElement("img");
+				let pic_url = acc.profile_image_url_https;
+				let format;
+				if (pic_url[pic_url.length - 4] == ".") {
+					format = pic_url.substring(pic_url.length - 4);
+				} else {
+					format = pic_url.substring(pic_url.length - 5);
+				}
+				pic_url = pic_url.substring(0, pic_url.length - pic_url_mod - format.length) + "_bigger" + format;
+				prof_pic.setAttribute("src", pic_url);
+
+				// let space = document.createElement("div");
+				// space.className = "space";
+				let toggle_btn = document.createElement("div");
+				toggle_btn.className = "collapse";
+				toggle_btn.addEventListener("click", () => {
+					let vids = box.children[2];
+					dropped_down = (vids.style.display == "");
+	
+					vids.style.display = (dropped_down) ? "none" : "";
+				});
+				
+				// acc_header.appendChild(space);
 				acc_header.appendChild(prof_pic);
 				acc_header.appendChild(accInfo);
+				acc_header.appendChild(toggle_btn);
+				
 				box.appendChild(acc_header);
 				box.appendChild(document.createElement("br"));
 				
@@ -70,10 +94,10 @@ function mn() {
 			req.open("GET", `http://localhost:3001/getvids?acc_index=${i}`)
 			req.onload = () => {
 				j++;
-				console.log(j);
+				// console.log(j);
 				let results = JSON.parse(req.responseText);
 				outputResults(results, finalHTML);
-				if (j % 10 == 0) {
+				if (j % 20 == 0) {
 					results_area.appendChild(finalHTML);
 					finalHTML = document.createDocumentFragment();
 				}
@@ -101,10 +125,12 @@ let outputResults = (data, df) => {
 		let vids = document.createElement("div"), vid_box;
 		for (let i in data.vids) {
 			vid_box = document.createElement("video");
+			vid_box.setAttribute("src", data.vids[i].vid);
 			vid_box.setAttribute("width", 200);
 			vid_box.setAttribute("height", 200);
 			vid_box.setAttribute("controls", true);
-			vid_box.setAttribute("src", data.vids[i].vid);
+			vid_box.setAttribute("poster", data.vids[i].thumbnail);
+			vid_box.setAttribute("preload", "none");
 
 			vids.appendChild(vid_box);
 		}
