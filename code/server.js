@@ -93,8 +93,8 @@ function getVids(results) {
 }
 
 function test(results) {
-	// console.log(data[0].entities.media)
-	console.log(results[0]);
+	console.log(results[0].entities.media[0])
+	// console.log(results[0]);
 }
 
 // init();
