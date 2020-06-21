@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					let acc_header = document.createElement("div");
 					acc_header.className = "acc_header";
 					
-					let accInfo = document.createElement("h1");
+					let accInfo = document.createElement("h2");
 					accInfo.textContent = `${acc.name} (@${acc.screen_name})`;
 	
 					let prof_pic = document.createElement("img");
@@ -77,8 +77,8 @@ document.addEventListener("DOMContentLoaded", () => {
 				retrieveBtn.style.display = "";
 	
 				clearInterval(accTimer);
-				ACC_LIMIT = accs.length;
-				// ACC_LIMIT = 50;
+				// ACC_LIMIT = accs.length;
+				ACC_LIMIT = 50;
 				mn();
 			}
 		};
@@ -98,9 +98,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			results_area.innerHTML = ""; // clearing 'results' section
 			
-			for (let i = 0; i < ACC_LIMIT; i++) {
+			// for (let i = 0; i < ACC_LIMIT; i++) {
+			for (let i = 29; i >= 0; i--) {
 				let req = new XMLHttpRequest(); // AJAX request for each account
 				req.open("GET", `http://localhost:3001/getvids?acc_index=${i}`)
+				// console.log("a");
+				
 				req.onload = () => {
 					j++;
 					// console.log(j);
@@ -112,7 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
 						df = document.createDocumentFragment();
 					}
 					
-					if (j == ACC_LIMIT) {
+					// if (j == ACC_LIMIT) {
+					if (j == 30) {
 						setTimeout(() => {
 							loading.style.display = "none";
 							retrieveBtn.style.display = "";
