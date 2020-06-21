@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	let input = document.getElementById("input");
 	
 	let loading = document.getElementById("loading");
+	let retrieveBtn = document.getElementById("retrieve");
 	
 	let retrieveBtn = document.createElement("button");
 	retrieveBtn.id = "retrieve";
@@ -65,9 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
 				});
 				console.log(`done processing, ${accs.length} accs found`);
 				
-				loading = document.getElementById("loading");
-				input.removeChild(loading);
-				input.appendChild(retrieveBtn);
+				loading.style.display = "none";
+				retrieveBtn.style.display = "";
 	
 				clearInterval(accTimer);
 				ACC_LIMIT = accs.length;
@@ -85,8 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
 			let finalHTML = document.createDocumentFragment();
 			j = 0;
 			
-			input.removeChild(retrieveBtn);
-			input.appendChild(loading);
+			loading.style.display = "";
+			retrieveBtn.style.display = "none";
+
 			results_area.innerHTML = ""; // clearing 'results' section
 			
 			for (let i = 0; i < ACC_LIMIT; i++) {
@@ -104,9 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
 					
 					if (j == ACC_LIMIT) {
 						setTimeout(() => {
-							input.removeChild(loading);
-							input.appendChild(retrieveBtn);
-	
+							loading.style.display = "none";
+							retrieveBtn.style.display = "";
+
 							results_area.appendChild(finalHTML);
 						}, 500);
 					}
