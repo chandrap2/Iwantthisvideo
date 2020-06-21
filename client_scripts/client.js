@@ -1,18 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
+	// console.log(document);
+
 	let input = document.getElementById("input");
 	
 	let loading = document.getElementById("loading");
 	let retrieveBtn = document.getElementById("retrieve");
-	
-	let retrieveBtn = document.createElement("button");
-	retrieveBtn.id = "retrieve";
-	retrieveBtn.textContent = "Retrieve videos";
 	
 	let results_area = document.getElementById("results");
 	
 	let accs, ACC_LIMIT;
 	let j = 0; // count how many accounts have been processed
 	const pic_url_mod = 7 // "_normal".length;
+	let df = document.createDocumentFragment();
 	
 	let accTimer = setInterval(() => {
 		let req = new XMLHttpRequest();
@@ -62,8 +61,16 @@ document.addEventListener("DOMContentLoaded", () => {
 					box.appendChild(acc_header);
 					box.appendChild(document.createElement("br"));
 					
+					// box.style.display = "none";
+					// let br = document.createElement("br");
+					// br.style.display = "none";
+
+					// df.appendChild(box);
+					// df.appendChild(br);
+					
 					acc.box = box;
 				});
+				// results_area.appendChild(df);
 				console.log(`done processing, ${accs.length} accs found`);
 				
 				loading.style.display = "none";
@@ -77,12 +84,13 @@ document.addEventListener("DOMContentLoaded", () => {
 		};
 
 		req.send();
-	}, 250);
+	}, 500);
 	
 	// Handles front end logic
 	function mn() {
 		retrieveBtn.addEventListener("click", () => {
-			let finalHTML = document.createDocumentFragment();
+			df = document.createDocumentFragment();
+			// results_area.style.display = "";
 			j = 0;
 			
 			loading.style.display = "";
@@ -97,10 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
 					j++;
 					// console.log(j);
 					let results = JSON.parse(req.responseText);
-					outputResults(results, finalHTML);
-					if (j % 5 == 0) {
-						results_area.appendChild(finalHTML);
-						finalHTML = document.createDocumentFragment();
+					outputResults(results);
+					if (df.childElementCount % 10 == 0) {
+						// console.log(df.childElementCount);
+						results_area.appendChild(df);
+						df = document.createDocumentFragment();
 					}
 					
 					if (j == ACC_LIMIT) {
@@ -108,7 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
 							loading.style.display = "none";
 							retrieveBtn.style.display = "";
 
-							results_area.appendChild(finalHTML);
+							results_area.appendChild(df);
+							// console.log(df);
 						}, 500);
 					}
 				};
@@ -118,10 +128,11 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 	
 	// Appends to a document fragment, which will later be appended to DOM
-	let outputResults = (data, df) => {
+	let outputResults = (data) => {
 		let acc = accs[data.id];
 		if (data.vids && data.vids.length > 0) {
 			let box = acc.box;
+			if (box.childElementCount > 2) box.removeChild(box.lastElementChild); // popping old vids
 			
 			let vids = document.createElement("div");
 			let vid_box;
@@ -137,8 +148,9 @@ document.addEventListener("DOMContentLoaded", () => {
 				vids.appendChild(vid_box);
 			}
 			vids.style.display = "none";
-			if (box.childElementCount > 2) box.removeChild(box.lastElementChild);
 			box.appendChild(vids);
+			// box.style.display = "";
+			// box.nextSibling.style.display = "";
 			// console.log(box.childElementCount);
 			
 			df.appendChild(box);
