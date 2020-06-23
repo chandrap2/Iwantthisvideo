@@ -46,7 +46,7 @@ app.get("/getvids", (request, response) => {
 			final.id = i;
 			response.json(final);
 		}).catch(err => {
-			console.console.log(err);
+			console.log(err);
 			
 			err = { };
 			err.id = i;
