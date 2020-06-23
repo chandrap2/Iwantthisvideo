@@ -25,7 +25,7 @@ app.get("/", (request, response) => {
 
 // Get Twitter user access token
 app.get("/oauth1", (request, response) => {
-    console.log("oauth");
+    // console.log("oauth");
     response.json(stuff);
 });
 
