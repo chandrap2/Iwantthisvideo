@@ -4,12 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My HTML Page</title>
-  <link rel="stylesheet" type="text/css" title="Cool stylesheet" href="style.css">
 </head>
 <body>
   <div id="root">
-		<p>what</p>
+		<a href="#">
+      <h1>Sign in</h1>
+    </a>
 	</div>
-  <script src="main.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+      let req = new XMLHttpRequest();
+      req.open("GET", "http://localhost:3001/oauth1");
+      
+      req.onload = () => {
+        // console.log(req.responseText);
+        
+        let oauth = JSON.parse(req.responseText);
+        req_token = oauth.oauth_token;
+
+        let url = new URL("https://api.twitter.com/oauth/authenticate");
+        url.searchParams.set("oauth_token", req_token);
+
+        let link = document.getElementsByTagName("a")[0];
+        link.setAttribute("href", url);
+        link.style.color = "red";
+      }
+
+      req.send();
+    })
+  </script>
 </body>
 </html>
