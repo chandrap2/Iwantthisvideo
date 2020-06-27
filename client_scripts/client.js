@@ -1,6 +1,8 @@
+// const { clear } = require("console");
+
 document.addEventListener("DOMContentLoaded", () => {
 	// console.log(document);
-
+	
 	let input = document.getElementById("input");
 	
 	let loading = document.getElementById("loading");
@@ -13,6 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
 	const pic_url_mod = 7 // "_normal".length;
 	let df = document.createDocumentFragment();
 	
+	let curr_url = new URL(window.location.href);
+	let params = curr_url.searchParams;
+	// console.log(params.get("oauth_token"));
+
+	/*
 	let accTimer = setInterval(() => {
 		let req = new XMLHttpRequest();
 		req.open("GET", "http://localhost:3001/check_accs");
@@ -85,6 +92,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		req.send();
 	}, 500);
+	*/
+	// let oauthTimer = setInterval(() => {
+	// 	// console.log("a");
+	// 	let req = new XMLHttpRequest();
+	// 	req.open("GET", "http://localhost:3001/oauth1");
+	// 	req.onload = () => {
+	// 		clearInterval(oauthTimer);
+
+	// 		let req_token = JSON.parse(req.responseText);
+
+	// 		let url = new URL("https://api.twitter.com/oauth/authenticate");
+	// 		url.searchParams.set("oauth_token", req_token.oauth_token);
+
+	// 		let link = document.getElementsByTagName("a")[0];
+	// 		link.setAttribute("href", url);
+	// 		console.log("ready to authenticate");
+	// 	}
+
+	// 	req.send();
+	// }, 500);
 	
 	// Handles front end logic
 	function mn() {

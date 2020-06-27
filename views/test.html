@@ -17,7 +17,7 @@
       req.open("GET", "http://localhost:3001/oauth1");
       
       req.onload = () => {
-        // console.log(req.responseText);
+        console.log(req.responseText);
         
         let oauth = JSON.parse(req.responseText);
         req_token = oauth.oauth_token;
@@ -31,7 +31,7 @@
       }
 
       req.send();
-    })
+    });
   </script>
 </body>
 </html>

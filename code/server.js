@@ -3,7 +3,8 @@ var T;
 
 const fs = require("fs");
 
-const express = require("express")
+const express = require("express");
+const { connect } = require("http2");
 const app = express()
 const port = 3001
 app.set("views", __dirname)
@@ -20,12 +21,57 @@ app.listen(port, () => {
 
 // Home page
 app.get("/", (request, response) => {
+	// console.log("signin page");
+	
+	response.sendFile("test.html", {root: __dirname + "/../views"});
+
+	// Rate limits: 15/15mins
+	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
+	// 	.then(results => accs = results.users)
+	// 	.catch(err => console.log(err));
+});
+
+// Home page
+app.get("/home", (request, response) => {
+	user_auth = request.query;
+	T.getAccessToken(user_auth).then(res => {
+		console.log(res);
+
+		let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
+		auth_tokens = JSON.parse(auth_tokens);
+		auth_tokens.access_token_key = res.oauth_token;
+		auth_tokens.access_token_secret = res.oauth_token_secret;
+		console.log(auth_tokens);
+		
+		T = new Twit(auth_tokens);
+
+		T.get("account/verify_credentials").then(res => {
+			console.log("after access token succ", res);
+		}).catch(err => console.log("after access token", err));
+
+	}).catch(console.error);
+	// console.log(access_token);
+
+
+	
 	response.sendFile("index.html", {root: __dirname + "/../views"});
 
 	// Rate limits: 15/15mins
-	T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
-		.then(results => accs = results.users)
-		.catch(err => console.log(err));
+	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
+	// 	.then(results => accs = results.users)
+	// 	.catch(err => console.log(err));
+});
+
+// Get Twitter user access token
+app.get("/oauth1", (request, response) => {
+	T.getRequestToken("http://localhost:3001/home").then(res => {
+		// console
+		// console.log(res);
+		response.json(res);
+	}).catch(console.error);
+
+	// console.log("oauth");
+	// response.json(stuff);
 });
 
 // Verifies account list has been assembled
@@ -55,10 +101,25 @@ app.get("/getvids", (request, response) => {
 });
 
 // Twitter authorization (user auth, lower rate limits)
+// function init() {
+// 	let auth_tokens = fs.readFileSync("./twit_auth.txt", "utf8");
+// 	auth_tokens = JSON.parse(auth_tokens);
+// 	T = new Twit(auth_tokens);
+// }
+
+// Twitter authorization (user auth, lower rate limits)
 function init() {
-	let auth_tokens = fs.readFileSync("./twit_auth.txt", "utf8");
+	let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
 	auth_tokens = JSON.parse(auth_tokens);
 	T = new Twit(auth_tokens);
+
+	T.get("account/verify_credentials").then(res => {
+		// console.log("before access token", res);
+	}).catch(err => console.log("before access token", err));
+	// T.getRequestToken("http://localhost:3001").then(res => {
+	// 	stuff = res;
+	// 	// console.log(res);
+	// }).catch(console.error);
 }
 
 // Output video URL's from a user's most recent Tweets
