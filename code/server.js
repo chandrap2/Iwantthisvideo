@@ -5,6 +5,7 @@ const fs = require("fs");
 
 const express = require("express");
 const { connect } = require("http2");
+const { response } = require("express");
 const app = express()
 const port = 3001
 app.set("views", __dirname)
@@ -12,50 +13,31 @@ app.use(express.static(__dirname + "/../client_scripts"))
 app.use(express.static(__dirname + "/../styles"))
 
 let accs = [];
+let accessTknAuthorized = false;
 
 // Listen on port 3001
 app.listen(port, () => {
-	init();
 	console.log(`Server listening at http://localhost:${port}`);
+	init();
 });
+
+// Home page
+// app.get("/", (request, response) => {
+// 	// console.log("signin page");
+	
+// 	response.sendFile("test.html", {root: __dirname + "/../views"});
+
+// 	// Rate limits: 15/15mins
+// 	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
+// 	// 	.then(results => accs = results.users)
+// 	// 	.catch(err => console.log(err));
+// });
 
 // Home page
 app.get("/", (request, response) => {
 	// console.log("signin page");
-	
-	response.sendFile("test.html", {root: __dirname + "/../views"});
-
-	// Rate limits: 15/15mins
-	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
-	// 	.then(results => accs = results.users)
-	// 	.catch(err => console.log(err));
-});
-
-// Home page
-app.get("/home", (request, response) => {
-	user_auth = request.query;
-	T.getAccessToken(user_auth).then(res => {
-		console.log(res);
-
-		let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
-		auth_tokens = JSON.parse(auth_tokens);
-		auth_tokens.access_token_key = res.oauth_token;
-		auth_tokens.access_token_secret = res.oauth_token_secret;
-		console.log(auth_tokens);
-		
-		T = new Twit(auth_tokens);
-
-		T.get("account/verify_credentials").then(res => {
-			console.log("after access token succ", res);
-		}).catch(err => console.log("after access token", err));
-
-	}).catch(console.error);
-	// console.log(access_token);
-
-
-	
 	response.sendFile("index.html", {root: __dirname + "/../views"});
-
+	
 	// Rate limits: 15/15mins
 	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
 	// 	.then(results => accs = results.users)
@@ -64,14 +46,47 @@ app.get("/home", (request, response) => {
 
 // Get Twitter user access token
 app.get("/oauth1", (request, response) => {
-	T.getRequestToken("http://localhost:3001/home").then(res => {
-		// console
+	T.getRequestToken("http://localhost:3001/redir").then(res => {
 		// console.log(res);
 		response.json(res);
-	}).catch(console.error);
+	}).catch("console.error");
 
 	// console.log("oauth");
 	// response.json(stuff);
+});
+
+app.get("/redir", (request, response) => {
+	let user_auth = request.query;
+	// accessTknAuthorized = false;
+	T.getAccessToken(user_auth).then(res => {
+		// console.log(res);
+
+		let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
+		auth_tokens = JSON.parse(auth_tokens);
+		auth_tokens.access_token_key = res.oauth_token;
+		auth_tokens.access_token_secret = res.oauth_token_secret;
+		// console.log(auth_tokens);
+
+		T = new Twit(auth_tokens);
+
+		T.get("account/verify_credentials").then(res => {
+			// console.log("after access token succ", res);
+			response.sendFile("test.html", {root: __dirname + "/../views"});
+			accessTknAuthorized = true;
+			console.log("AUTHORIZED");
+			
+		}).catch(err => console.log("after access token", err));
+		
+	}).catch(console.error);
+});
+
+app.get("/close_auth", (requeest, response) => {
+	if (accessTknAuthorized) {
+		console.log("aaaa");
+		
+		accessTknAuthorized = false;
+		response.json(T);
+	}
 });
 
 // Verifies account list has been assembled
@@ -101,25 +116,10 @@ app.get("/getvids", (request, response) => {
 });
 
 // Twitter authorization (user auth, lower rate limits)
-// function init() {
-// 	let auth_tokens = fs.readFileSync("./twit_auth.txt", "utf8");
-// 	auth_tokens = JSON.parse(auth_tokens);
-// 	T = new Twit(auth_tokens);
-// }
-
-// Twitter authorization (user auth, lower rate limits)
 function init() {
 	let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
 	auth_tokens = JSON.parse(auth_tokens);
 	T = new Twit(auth_tokens);
-
-	T.get("account/verify_credentials").then(res => {
-		// console.log("before access token", res);
-	}).catch(err => console.log("before access token", err));
-	// T.getRequestToken("http://localhost:3001").then(res => {
-	// 	stuff = res;
-	// 	// console.log(res);
-	// }).catch(console.error);
 }
 
 // Output video URL's from a user's most recent Tweets

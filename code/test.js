@@ -7,23 +7,23 @@
 // 	console.log(results);
 // });
 
-function a() {
-	new Promise((res, rej) => {
-		b(res, rej);
-		console.log(1);
-	}).then((results) => {
-		console.log(results);
-	}).catch((results) => {
-		console.log(results);
-	});
-}
+// function a() {
+// 	new Promise((res, rej) => {
+// 		b(res, rej);
+// 		console.log(1);
+// 	}).then((results) => {
+// 		console.log(results);
+// 	}).catch((results) => {
+// 		console.log(results);
+// 	});
+// }
 
-function b(res, rej) {
-	c(res, rej);
-}
+// function b(res, rej) {
+// 	c(res, rej);
+// }
 
-function c(res, rej) {
-	res("LOL");
-}
+// function c(res, rej) {
+// 	res("LOL");
+// }
 
-a();
+// a();

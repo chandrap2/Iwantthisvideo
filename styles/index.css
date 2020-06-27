@@ -42,6 +42,7 @@ body > * {
 }
 
 #sign-in button {
+	display: auto;
 	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 	background-color: #a8e5ff;
 }

@@ -3,6 +3,8 @@
 document.addEventListener("DOMContentLoaded", () => {
 	// console.log(document);
 	
+	let signinBtn = document.getElementById("login-btn");
+
 	let input = document.getElementById("input");
 	
 	let loading = document.getElementById("loading");
@@ -15,9 +17,45 @@ document.addEventListener("DOMContentLoaded", () => {
 	const pic_url_mod = 7 // "_normal".length;
 	let df = document.createDocumentFragment();
 	
-	let curr_url = new URL(window.location.href);
-	let params = curr_url.searchParams;
-	// console.log(params.get("oauth_token"));
+	// let curr_url = new URL(window.location.href);
+	// let params = curr_url.searchParams;
+
+	let auth_window;
+
+	signinBtn.addEventListener("click", () => {
+		let req = new XMLHttpRequest();
+		req.open("GET", "http://localhost:3001/oauth1");
+		req.onload = () => {
+			// clearInterval(oauthTimer);
+
+			let req_token = JSON.parse(req.responseText);
+			console.log(req_token);
+
+			let url = new URL("https://api.twitter.com/oauth/authenticate");
+			url.searchParams.set("oauth_token", req_token.oauth_token);
+			
+			let params = "menubar=no,toolbar=no,width=600,height=600";
+			auth_window = window.open(url, "test", params);
+			closeRedir();
+			// console.log("ready to authenticate");
+		}
+
+		req.send();
+	});
+
+	function closeRedir() {
+		let closeAuthTimer = setInterval(() => {
+			let req = new XMLHttpRequest();
+			req.open("GET", "http://localhost:3001/close_auth");
+			req.onload = () => {
+				console.log(JSON.parse(req.responseText));
+				
+				clearInterval(closeAuthTimer);
+				auth_window.close();
+			}
+			req.send();
+		}, 1000);
+	}
 
 	/*
 	let accTimer = setInterval(() => {
