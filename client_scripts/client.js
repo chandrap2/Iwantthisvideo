@@ -2,7 +2,8 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 	// console.log(document);
-	
+	let user, user_pic;
+
 	let signinBtn = document.getElementById("login-btn");
 
 	let input = document.getElementById("input");
@@ -48,89 +49,103 @@ document.addEventListener("DOMContentLoaded", () => {
 			let req = new XMLHttpRequest();
 			req.open("GET", "http://localhost:3001/close_auth");
 			req.onload = () => {
-				console.log(JSON.parse(req.responseText));
+				// console.log(JSON.parse(req.responseText));
+				user = JSON.parse(req.responseText);
+				user_pic = document.createElement("img");
+				user_pic.id = "user-pic";
+				user_pic.setAttribute("src", user.profile_image_url_https);
+				document.getElementById("signed-in").appendChild(user_pic);
 				
 				clearInterval(closeAuthTimer);
 				auth_window.close();
+
+				document.getElementById("signed-in").style.display = "";
+				document.getElementById("signed-in").style.paddingRight = "16px";
+				signinBtn.style.display = "none";
+
+				getAccs();
 			}
 			req.send();
 		}, 1000);
 	}
 
-	/*
-	let accTimer = setInterval(() => {
-		let req = new XMLHttpRequest();
-		req.open("GET", "http://localhost:3001/check_accs");
-		req.onload = () => {
-			let results = JSON.parse(req.responseText);
-			
-			if (results.accs.length > 0) {
-				accs = results.accs;
-				accs.forEach(acc => {
-					let box = document.createElement("div");
-					box.className = "result";
-					
-					let acc_header = document.createElement("div");
-					acc_header.className = "acc_header";
-					
-					let accInfo = document.createElement("h2");
-					accInfo.textContent = `${acc.name} (@${acc.screen_name})`;
-	
-					let prof_pic = document.createElement("img");
-					let pic_url = acc.profile_image_url_https;
-					let format;
-					if (pic_url[pic_url.length - 4] == ".") {
-						format = pic_url.substring(pic_url.length - 4);
-					} else {
-						format = pic_url.substring(pic_url.length - 5);
-					}
-					pic_url = pic_url.substring(0, pic_url.length - pic_url_mod - format.length) + "_bigger" + format;
-					prof_pic.setAttribute("src", pic_url);
-	
-					// let space = document.createElement("div");
-					// space.className = "space";
-					let toggle_btn = document.createElement("div");
-					toggle_btn.className = "collapse";
-					toggle_btn.addEventListener("click", () => {
-						let vids = box.children[2];
-						dropped_down = (vids.style.display == "");
-		
-						vids.style.display = (dropped_down) ? "none" : "";
-					});
-					
-					// acc_header.appendChild(space);
-					acc_header.appendChild(prof_pic);
-					acc_header.appendChild(accInfo);
-					acc_header.appendChild(toggle_btn);
-					
-					box.appendChild(acc_header);
-					box.appendChild(document.createElement("br"));
-					
-					// box.style.display = "none";
-					// let br = document.createElement("br");
-					// br.style.display = "none";
+	function getAccs() {
+		input.style.display = "";
 
-					// df.appendChild(box);
-					// df.appendChild(br);
-					
-					acc.box = box;
-				});
-				// results_area.appendChild(df);
-				console.log(`done processing, ${accs.length} accs found`);
+		let accTimer = setInterval(() => {
+			let req = new XMLHttpRequest();
+			req.open("GET", "http://localhost:3001/check_accs");
+			req.onload = () => {
+				let results = JSON.parse(req.responseText);
 				
-				loading.style.display = "none";
-				retrieveBtn.style.display = "";
-	
-				clearInterval(accTimer);
-				ACC_LIMIT = accs.length;
-				// ACC_LIMIT = 50;
-				mn();
-			}
-		};
+				if (results.accs.length > 0) {
+					accs = results.accs;
+					accs.forEach(acc => {
+						let box = document.createElement("div");
+						box.className = "result";
+						
+						let acc_header = document.createElement("div");
+						acc_header.className = "acc_header";
+						
+						let accInfo = document.createElement("h2");
+						accInfo.textContent = `${acc.name} (@${acc.screen_name})`;
+		
+						let prof_pic = document.createElement("img");
+						let pic_url = acc.profile_image_url_https;
+						let format;
+						if (pic_url[pic_url.length - 4] == ".") {
+							format = pic_url.substring(pic_url.length - 4);
+						} else {
+							format = pic_url.substring(pic_url.length - 5);
+						}
+						pic_url = pic_url.substring(0, pic_url.length - pic_url_mod - format.length) + "_bigger" + format;
+						prof_pic.setAttribute("src", pic_url);
+		
+						// let space = document.createElement("div");
+						// space.className = "space";
+						let toggle_btn = document.createElement("div");
+						toggle_btn.className = "collapse";
+						toggle_btn.addEventListener("click", () => {
+							let vids = box.children[2];
+							dropped_down = (vids.style.display == "");
+			
+							vids.style.display = (dropped_down) ? "none" : "";
+						});
+						
+						// acc_header.appendChild(space);
+						acc_header.appendChild(prof_pic);
+						acc_header.appendChild(accInfo);
+						acc_header.appendChild(toggle_btn);
+						
+						box.appendChild(acc_header);
+						box.appendChild(document.createElement("br"));
+						
+						// box.style.display = "none";
+						// let br = document.createElement("br");
+						// br.style.display = "none";
 
-		req.send();
-	}, 500);
-	*/
+						// df.appendChild(box);
+						// df.appendChild(br);
+						
+						acc.box = box;
+					});
+					// results_area.appendChild(df);
+					console.log(`done processing, ${accs.length} accs found`);
+					
+					loading.style.display = "none";
+					retrieveBtn.style.display = "";
+		
+					clearInterval(accTimer);
+					ACC_LIMIT = accs.length;
+					// ACC_LIMIT = 50;
+					mn();
+				}
+			};
+
+			req.send();
+		}, 500);
+	}
+
 	// let oauthTimer = setInterval(() => {
 	// 	// console.log("a");
 	// 	let req = new XMLHttpRequest();

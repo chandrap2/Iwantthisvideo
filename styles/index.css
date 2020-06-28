@@ -41,16 +41,33 @@ body > * {
 	border-radius: 10px;
 }
 
-#sign-in button {
+#login-btn {
 	display: auto;
 	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 	background-color: #a8e5ff;
 }
 
-#sign-in button:hover {
+#login-btn:hover {
 	background-color: #3391b9;
 	color: #174153;
 	cursor: pointer;
+}
+
+#signed-in * {
+	vertical-align: middle;
+}
+
+#signed-in {
+	padding: 10px 19px;
+	border-style: solid;
+	border-width: 3px;
+}
+
+#user-pic {
+	padding: 0px;
+	border-radius: 5px;
+	width: 40px;
+	height: 40px;
 }
 
 #input * {

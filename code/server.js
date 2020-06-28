@@ -12,6 +12,7 @@ app.set("views", __dirname)
 app.use(express.static(__dirname + "/../client_scripts"))
 app.use(express.static(__dirname + "/../styles"))
 
+let user;
 let accs = [];
 let accessTknAuthorized = false;
 
@@ -71,10 +72,10 @@ app.get("/redir", (request, response) => {
 
 		T.get("account/verify_credentials").then(res => {
 			// console.log("after access token succ", res);
+			user = res;
 			response.sendFile("test.html", {root: __dirname + "/../views"});
 			accessTknAuthorized = true;
-			console.log("AUTHORIZED");
-			
+			// console.log("AUTHORIZED");
 		}).catch(err => console.log("after access token", err));
 		
 	}).catch(console.error);
@@ -82,10 +83,15 @@ app.get("/redir", (request, response) => {
 
 app.get("/close_auth", (requeest, response) => {
 	if (accessTknAuthorized) {
-		console.log("aaaa");
-		
 		accessTknAuthorized = false;
-		response.json(T);
+		
+		// Rate limits: 15/15mins
+		T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
+		.then(results => {
+			accs = results.users
+			response.json(user);
+		})
+		.catch(err => console.log(T));
 	}
 });
 
