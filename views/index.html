@@ -10,18 +10,20 @@
 <body>
   <div id="title"> <h1>I want this video.</h1> </div>
   
-  <!-- <div id="sign-in" style="display: none;"> -->
   <div id="sign-in">
-    <!-- <a href="#"> -->
       <button id="login-btn">Sign in</button>
-      <div id="signed-in" style="display: none;">Signed in as </div>
-    <!-- </a> -->
+      <div id="signed-in" style="display: none;">
+        Signed in as
+        <img id="user-pic" style="display: none;"></img>
+      </div>
+      <button id="logout-btn" style="display: none;">Sign out</button>
   </div>
   
   <br>
 
 	<div id="input" style="display: none;">
     <p id="loading">Loading</p>
+    <p id="no-accs" style="display: none;">No accounts found</p>
     <div id="retrieve" style="display: none;">Retrieve videos</div>
   </div>
 

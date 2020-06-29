@@ -4,8 +4,6 @@ var T;
 const fs = require("fs");
 
 const express = require("express");
-const { connect } = require("http2");
-const { response } = require("express");
 const app = express()
 const port = 3001
 app.set("views", __dirname)
@@ -14,6 +12,8 @@ app.use(express.static(__dirname + "/../styles"))
 
 let user;
 let accs = [];
+
+// let accessToken;
 let accessTknAuthorized = false;
 
 // Listen on port 3001
@@ -23,26 +23,11 @@ app.listen(port, () => {
 });
 
 // Home page
-// app.get("/", (request, response) => {
-// 	// console.log("signin page");
-	
-// 	response.sendFile("test.html", {root: __dirname + "/../views"});
-
-// 	// Rate limits: 15/15mins
-// 	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
-// 	// 	.then(results => accs = results.users)
-// 	// 	.catch(err => console.log(err));
-// });
-
-// Home page
 app.get("/", (request, response) => {
 	// console.log("signin page");
 	response.sendFile("index.html", {root: __dirname + "/../views"});
-	
-	// Rate limits: 15/15mins
-	// T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
-	// 	.then(results => accs = results.users)
-	// 	.catch(err => console.log(err));
+	response.cookie("name", "chandra", {sameSite: true});
+	// response.cookie("naaame", "chandra", {sameSite: true});
 });
 
 // Get Twitter user access token
@@ -51,9 +36,6 @@ app.get("/oauth1", (request, response) => {
 		// console.log(res);
 		response.json(res);
 	}).catch("console.error");
-
-	// console.log("oauth");
-	// response.json(stuff);
 });
 
 app.get("/redir", (request, response) => {
@@ -95,9 +77,14 @@ app.get("/close_auth", (requeest, response) => {
 	}
 });
 
+app.get("/logout", (request, response) => {
+	init();
+	response.json();
+});
+
 // Verifies account list has been assembled
 app.get("/check_accs", (request, response) => {
-	if (accs.length > 0) response.json( {accs: accs} );
+	response.json( {accs: accs} );
 });
 
 // Send results
@@ -125,6 +112,8 @@ app.get("/getvids", (request, response) => {
 function init() {
 	let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
 	auth_tokens = JSON.parse(auth_tokens);
+	// if (accessToken) auth_tokens = {...auth_tokens, ...accessToken};
+
 	T = new Twit(auth_tokens);
 }
 

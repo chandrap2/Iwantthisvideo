@@ -1,10 +1,10 @@
-// const { clear } = require("console");
-
 document.addEventListener("DOMContentLoaded", () => {
 	// console.log(document);
+
 	let user, user_pic;
 
 	let signinBtn = document.getElementById("login-btn");
+	let signoutBtn = document.getElementById("logout-btn");
 
 	let input = document.getElementById("input");
 	
@@ -18,9 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	const pic_url_mod = 7 // "_normal".length;
 	let df = document.createDocumentFragment();
 	
-	// let curr_url = new URL(window.location.href);
-	// let params = curr_url.searchParams;
-
 	let auth_window;
 
 	signinBtn.addEventListener("click", () => {
@@ -44,24 +41,43 @@ document.addEventListener("DOMContentLoaded", () => {
 		req.send();
 	});
 
+	signoutBtn.addEventListener("click", () => {
+		let req = new XMLHttpRequest();
+		req.open("GET", "http://localhost:3001/logout");
+		
+		req.onload = () => {
+			results_area.innerHTML = "";
+			input.style.display = "none";
+			document.getElementById("signed-in").style.display = "none";
+			signoutBtn.style.display = "none";
+			signinBtn.style.display = "";
+
+			accs = null;
+			ACC_LIMIT = j = 0;
+		}
+
+		req.send();
+	});
+
 	function closeRedir() {
 		let closeAuthTimer = setInterval(() => {
 			let req = new XMLHttpRequest();
 			req.open("GET", "http://localhost:3001/close_auth");
 			req.onload = () => {
-				// console.log(JSON.parse(req.responseText));
-				user = JSON.parse(req.responseText);
-				user_pic = document.createElement("img");
-				user_pic.id = "user-pic";
-				user_pic.setAttribute("src", user.profile_image_url_https);
-				document.getElementById("signed-in").appendChild(user_pic);
-				
 				clearInterval(closeAuthTimer);
-				auth_window.close();
-
+				// console.log(JSON.parse(req.responseText));
+				signinBtn.style.display = "none";
+				
+				user = JSON.parse(req.responseText);
+				user_pic = document.getElementById("user-pic");
+				user_pic.setAttribute("src", user.profile_image_url_https);
+				user_pic.style.display = "";
+				
 				document.getElementById("signed-in").style.display = "";
 				document.getElementById("signed-in").style.paddingRight = "16px";
-				signinBtn.style.display = "none";
+				signoutBtn.style.display = "";
+				
+				auth_window.close();
 
 				getAccs();
 			}
@@ -134,38 +150,22 @@ document.addEventListener("DOMContentLoaded", () => {
 					
 					loading.style.display = "none";
 					retrieveBtn.style.display = "";
-		
-					clearInterval(accTimer);
+					
 					ACC_LIMIT = accs.length;
 					// ACC_LIMIT = 50;
 					mn();
+				} else {
+					loading.style.display = "none";
+					document.getElementById("no-accs").style.display = "";
 				}
+
+				clearInterval(accTimer);
 			};
 
 			req.send();
 		}, 500);
 	}
 
-	// let oauthTimer = setInterval(() => {
-	// 	// console.log("a");
-	// 	let req = new XMLHttpRequest();
-	// 	req.open("GET", "http://localhost:3001/oauth1");
-	// 	req.onload = () => {
-	// 		clearInterval(oauthTimer);
-
-	// 		let req_token = JSON.parse(req.responseText);
-
-	// 		let url = new URL("https://api.twitter.com/oauth/authenticate");
-	// 		url.searchParams.set("oauth_token", req_token.oauth_token);
-
-	// 		let link = document.getElementsByTagName("a")[0];
-	// 		link.setAttribute("href", url);
-	// 		console.log("ready to authenticate");
-	// 	}
-
-	// 	req.send();
-	// }, 500);
-	
 	// Handles front end logic
 	function mn() {
 		retrieveBtn.addEventListener("click", () => {

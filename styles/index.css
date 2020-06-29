@@ -30,10 +30,11 @@ body > * {
 	top: 5px;
 }
 
-#sign-in * {
+#sign-in > * {
+	float: left;
+	/* margin: 7px; */
 	color: #638897;
 	padding: 13px 22px;
-	/* margin: 0px 10px 0px 0px; */
 	text-align: center;
 	font-size: 20px;
 	font-weight: bold;
@@ -53,12 +54,27 @@ body > * {
 	cursor: pointer;
 }
 
+#logout-btn {
+	float: right;
+	display: auto;
+	font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+	color: rgb(143, 55, 55);
+	background-color: rgb(247, 148, 148);
+}
+
+#logout-btn:hover {
+	background-color: rgb(158, 78, 78);
+	color: rgb(78, 23, 23);
+	cursor: pointer;
+}
+
 #signed-in * {
 	vertical-align: middle;
 }
 
 #signed-in {
 	padding: 10px 19px;
+	margin-right: 14px;
 	border-style: solid;
 	border-width: 3px;
 }
@@ -82,10 +98,14 @@ body > * {
 	border-radius: 10px;
 }
 
-#loading {
+#loading, #no-accs {
 	padding: 10px 19px;
 	border-style: solid;
 	border-width: 3px;
+}
+
+#no-accs {
+	color: rgb(163, 45, 45)
 }
 
 #retrieve {
