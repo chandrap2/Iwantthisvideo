@@ -4,6 +4,25 @@ document.addEventListener("DOMContentLoaded", () => {
 	let user, user_pic;
 
 	let signinBtn = document.getElementById("login-btn");
+	signinBtn.addEventListener("click", () => {
+		let req = new XMLHttpRequest();
+		req.open("GET", "http://localhost:3001/oauth1");
+		req.onload = () => {
+			let req_token = JSON.parse(req.responseText);
+			// console.log(req_token);
+			
+			let url = new URL("https://api.twitter.com/oauth/authenticate");
+			url.searchParams.set("oauth_token", req_token.oauth_token);
+			
+			let params = "menubar=no,toolbar=no,width=600,height=600";
+			auth_window = window.open(url, "test", params);
+			closeRedir();
+			// console.log("ready to authenticate");
+		}
+		
+		req.send();
+	});
+
 	let signoutBtn = document.getElementById("logout-btn");
 
 	let input = document.getElementById("input");
@@ -20,27 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	
 	let auth_window;
 
-	signinBtn.addEventListener("click", () => {
-		let req = new XMLHttpRequest();
-		req.open("GET", "http://localhost:3001/oauth1");
-		req.onload = () => {
-			// clearInterval(oauthTimer);
-
-			let req_token = JSON.parse(req.responseText);
-			console.log(req_token);
-
-			let url = new URL("https://api.twitter.com/oauth/authenticate");
-			url.searchParams.set("oauth_token", req_token.oauth_token);
-			
-			let params = "menubar=no,toolbar=no,width=600,height=600";
-			auth_window = window.open(url, "test", params);
-			closeRedir();
-			// console.log("ready to authenticate");
-		}
-
-		req.send();
-	});
-
+	if (document.cookie.length != 0) {
+		closeRedir();
+	} else {
+		signinBtn.style.display = "";
+	}
+	
 	signoutBtn.addEventListener("click", () => {
 		let req = new XMLHttpRequest();
 		req.open("GET", "http://localhost:3001/logout");
@@ -77,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				document.getElementById("signed-in").style.paddingRight = "16px";
 				signoutBtn.style.display = "";
 				
-				auth_window.close();
+				if (auth_window) auth_window.close();
 
 				getAccs();
 			}

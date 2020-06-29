@@ -4,11 +4,14 @@ var T;
 const fs = require("fs");
 
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express()
 const port = 3001
+
 app.set("views", __dirname)
 app.use(express.static(__dirname + "/../client_scripts"))
 app.use(express.static(__dirname + "/../styles"))
+app.use(cookieParser())
 
 let user;
 let accs = [];
@@ -24,10 +27,33 @@ app.listen(port, () => {
 
 // Home page
 app.get("/", (request, response) => {
+	response.clearCookie("naaame");
 	// console.log("signin page");
-	response.sendFile("index.html", {root: __dirname + "/../views"});
-	response.cookie("name", "chandra", {sameSite: true});
-	// response.cookie("naaame", "chandra", {sameSite: true});
+	// console.log(request.headers);
+	let cks = request.cookies;
+	console.log(cks);
+	
+	if (cks.accToken != "undefined" && cks.accTokenSec != "undefined") {
+		let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
+		auth_tokens = JSON.parse(auth_tokens);
+		auth_tokens.access_token_key = request.cookies.accToken;
+		auth_tokens.access_token_secret = request.cookies.accTokenSec;
+		// console.log(auth_tokens);
+		T = new Twit(auth_tokens);
+		
+		T.get("account/verify_credentials").then(res => {
+			user = res;
+			response.sendFile("index.html", { root: __dirname + "/../views" });
+			accessTknAuthorized = true;
+			// console.log("AUTHORIZED");
+		}).catch(err => console.log("after access token", err));
+	} else {
+		response.sendFile("index.html", { root: __dirname + "/../views" });
+	}
+	// response.cookie("name", "a", {sameSite: true, httpOnly: true});
+	// response.cookie("naaame", "aa", {sameSite: true});
+	// response.clearCookie("name");
+	// response.clearCookie("naaame");
 });
 
 // Get Twitter user access token
@@ -48,33 +74,46 @@ app.get("/redir", (request, response) => {
 		auth_tokens = JSON.parse(auth_tokens);
 		auth_tokens.access_token_key = res.oauth_token;
 		auth_tokens.access_token_secret = res.oauth_token_secret;
+		
 		// console.log(auth_tokens);
-
 		T = new Twit(auth_tokens);
-
+		
 		T.get("account/verify_credentials").then(res => {
 			// console.log("after access token succ", res);
 			user = res;
-			response.sendFile("test.html", {root: __dirname + "/../views"});
+			response.sendFile("test.html", { root: __dirname + "/../views" });
+			response.cookie("accToken", auth_tokens.access_token_key, { sameSite: true });
+			response.cookie("accTokenSec", auth_tokens.access_token_secret, { sameSite: true });
+			// console.log(auth_tokens.access_token_key);
+
 			accessTknAuthorized = true;
 			// console.log("AUTHORIZED");
 		}).catch(err => console.log("after access token", err));
-		
+
 	}).catch(console.error);
 });
 
 app.get("/close_auth", (requeest, response) => {
 	if (accessTknAuthorized) {
 		accessTknAuthorized = false;
-		
+
 		// Rate limits: 15/15mins
-		T.get("friends/list", {skip_status: true, include_user_entities: false, count: 200})
+		T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
+			.then(results => {
+				accs = results.users;
+				response.json(user);
+			})
+			.catch(err => console.log(T));
+	}
+});
+
+app.get("/user", (request, response) =>  {
+	T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
 		.then(results => {
 			accs = results.users
 			response.json(user);
 		})
 		.catch(err => console.log(T));
-	}
 });
 
 app.get("/logout", (request, response) => {
@@ -84,7 +123,7 @@ app.get("/logout", (request, response) => {
 
 // Verifies account list has been assembled
 app.get("/check_accs", (request, response) => {
-	response.json( {accs: accs} );
+	response.json({ accs: accs });
 });
 
 // Send results
@@ -94,15 +133,15 @@ app.get("/getvids", (request, response) => {
 
 	// Rate limits: 900/15mins, 100k/day
 	T.get("statuses/user_timeline",
-	{screen_name: acc.screen_name, exclude_replies: true, trim_user: true, count: 20})
+		{ screen_name: acc.screen_name, exclude_replies: true, trim_user: true, count: 20 })
 		.then(results => {
 			let final = getVids(results);
 			final.id = i;
 			response.json(final);
 		}).catch(err => {
 			console.log(err);
-			
-			err = { };
+
+			err = {};
 			err.id = i;
 			response.json(err);
 		});
@@ -119,15 +158,15 @@ function init() {
 
 // Output video URL's from a user's most recent Tweets
 function getVids(results) {
-	let output = { };
-	
+	let output = {};
+
 	if (results.length > 0) { // if tweets were returned
 		output.vids = []
 
 		for (i in results) { // look at each tweet
 			let entities = results[i].extended_entities
 			if (entities != undefined &&
-			entities.media[0].type == "video") { // if tweet contains video
+				entities.media[0].type == "video") { // if tweet contains video
 				let thumbnail = results[i].entities.media[0].media_url_https;
 				let vid_obj = { thumbnail: thumbnail };
 
