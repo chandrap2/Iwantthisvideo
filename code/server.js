@@ -107,7 +107,7 @@ app.get("/close_auth", (requeest, response) => {
 	}
 });
 
-app.get("/user", (request, response) =>  {
+app.get("/user", (request, response) => {
 	T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
 		.then(results => {
 			accs = results.users

@@ -181,6 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			retrieveBtn.style.display = "none";
 
 			results_area.innerHTML = ""; // clearing 'results' section
+			document.getElementById("flip-page").style.display = "";
 			
 			for (let i = 0; i < ACC_LIMIT; i++) {
 			// for (let i = 29; i >= 0; i--) {
