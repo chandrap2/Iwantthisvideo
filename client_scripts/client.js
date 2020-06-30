@@ -54,16 +54,24 @@ document.addEventListener("DOMContentLoaded", () => {
 	
 	document.getElementById("left").addEventListener("click", () => {
 		currPage = (currPage == 0) ? pages.length - 1 : currPage - 1;
+		let df = document.createDocumentFragment();
+		df.appendChild(pages[currPage]);
 		results_area.innerHTML = "";
-		results_area.appendChild(pages[currPage]);
-		console.log(pages[currPage]);
+		// results_area.appendChild(pages[currPage]);
+		results_area.appendChild(df);
+		// results_area.appendChild(document.createDocumentFragment().appendChild(pages[currPage]));
+		// console.log(pages[currPage]);
 	});
 	
 	document.getElementById("right").addEventListener("click", () => {
 		currPage = (currPage == pages.length - 1) ? 0 : currPage + 1;
+		let df = document.createDocumentFragment();
+		df.appendChild(pages[currPage]);
 		results_area.innerHTML = "";
-		results_area.appendChild(pages[currPage]);
-		console.log(pages[currPage]);
+		// results_area.appendChild(pages[currPage]);
+		results_area.appendChild(df);
+		// results_area.appendChild(document.createDocumentFragment().appendChild(pages[currPage]));
+		// console.log(pages[currPage]);
 	});
 	
 	let auth_window;
@@ -177,6 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	// Handles front end logic
 	function mn() {
 		retrieveBtn.addEventListener("click", () => {
+			pages = [];
 			let page = document.createElement("div");
 			j = 0;
 			
