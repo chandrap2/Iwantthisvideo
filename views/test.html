@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My HTML Page</title>
+  <style>
+    html {
+      padding: 10px 20px;
+      background-color: #ffffc9;
+    }
+
+    body {
+      margin: 0px;
+      padding: 5px;
+    }
+
+    body>* {
+      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      color: #1780aa;
+    }
+  </style>
 </head>
+
 <body>
   <div id="root">
-		<a href="#">
-      <h1>Sign in</h1>
-    </a>
-	</div>
+    <h3>Redirecting...</h3>
+  </div>
   <script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", () => {
-      let req = new XMLHttpRequest();
-      req.open("GET", "http://localhost:3001/oauth1");
-      
-      req.onload = () => {
-        // console.log(req.responseText);
-        
-        let oauth = JSON.parse(req.responseText);
-        req_token = oauth.oauth_token;
-
-        let url = new URL("https://api.twitter.com/oauth/authenticate");
-        url.searchParams.set("oauth_token", req_token);
-
-        let link = document.getElementsByTagName("a")[0];
-        link.setAttribute("href", url);
-        link.style.color = "red";
-      }
-
-      req.send();
-    })
   </script>
 </body>
+
 </html>
