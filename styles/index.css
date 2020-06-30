@@ -119,6 +119,30 @@ body > * {
 	cursor: pointer;
 }
 
+#flip-page {
+	display: inline-block;
+	padding: 0px;
+	margin-bottom: 17px;
+}
+
+#flip-page > * {
+	display: inline-block;
+	padding: 0px;
+	margin-right: 14px;
+	border-radius: 10px;
+}
+
+.flip {
+	width: 60px;
+	height: 40px;
+	background-color: #638897;
+}
+
+.flip:hover {
+	background-color: #174153;
+	cursor: pointer;
+}
+
 #results {
 	margin: 0px;
 }

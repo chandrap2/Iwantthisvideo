@@ -33,14 +33,15 @@ app.get("/", (request, response) => {
 	let cks = request.cookies;
 	console.log(cks);
 	
-	if (cks.accToken != "undefined" && cks.accTokenSec != "undefined") {
+	if (cks.accToken &&
+			cks.accToken != "undefined" && cks.accTokenSec != "undefined") {
 		let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
 		auth_tokens = JSON.parse(auth_tokens);
 		auth_tokens.access_token_key = request.cookies.accToken;
 		auth_tokens.access_token_secret = request.cookies.accTokenSec;
 		// console.log(auth_tokens);
 		T = new Twit(auth_tokens);
-		
+
 		T.get("account/verify_credentials").then(res => {
 			user = res;
 			response.sendFile("index.html", { root: __dirname + "/../views" });
@@ -74,10 +75,10 @@ app.get("/redir", (request, response) => {
 		auth_tokens = JSON.parse(auth_tokens);
 		auth_tokens.access_token_key = res.oauth_token;
 		auth_tokens.access_token_secret = res.oauth_token_secret;
-		
+
 		// console.log(auth_tokens);
 		T = new Twit(auth_tokens);
-		
+
 		T.get("account/verify_credentials").then(res => {
 			// console.log("after access token succ", res);
 			user = res;
@@ -107,7 +108,7 @@ app.get("/close_auth", (requeest, response) => {
 	}
 });
 
-app.get("/user", (request, response) =>  {
+app.get("/user", (request, response) => {
 	T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
 		.then(results => {
 			accs = results.users
