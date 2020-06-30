@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
 	// console.log(document);
+	let accs, ACC_LIMIT;
+	let j = 0; // count how many accounts have been processed
+	const pic_url_mod = 7 // "_normal".length;
+
+	let pages = [], currPage = 0;
 
 	let user, user_pic;
 
@@ -24,27 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	let signoutBtn = document.getElementById("logout-btn");
-
-	let input = document.getElementById("input");
-	
-	let loading = document.getElementById("loading");
-	let retrieveBtn = document.getElementById("retrieve");
-	
-	let results_area = document.getElementById("results");
-	
-	let accs, ACC_LIMIT;
-	let j = 0; // count how many accounts have been processed
-	const pic_url_mod = 7 // "_normal".length;
-	let df = document.createDocumentFragment();
-	
-	let auth_window;
-
-	if (document.cookie.length != 0) {
-		closeRedir();
-	} else {
-		signinBtn.style.display = "";
-	}
-	
 	signoutBtn.addEventListener("click", () => {
 		let req = new XMLHttpRequest();
 		req.open("GET", "http://localhost:3001/logout");
@@ -62,6 +46,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		req.send();
 	});
+
+	let input = document.getElementById("input");
+	let loading = document.getElementById("loading");
+	let retrieveBtn = document.getElementById("retrieve");
+	let results_area = document.getElementById("results");
+	
+	document.getElementById("left").addEventListener("click", () => {
+		currPage = (currPage == 0) ? pages.length - 1 : currPage - 1;
+		results_area.innerHTML = "";
+		results_area.appendChild(pages[currPage]);
+		console.log(pages[currPage]);
+	});
+	
+	document.getElementById("right").addEventListener("click", () => {
+		currPage = (currPage == pages.length - 1) ? 0 : currPage + 1;
+		results_area.innerHTML = "";
+		results_area.appendChild(pages[currPage]);
+		console.log(pages[currPage]);
+	});
+	
+	let auth_window;
+
+	if (document.cookie.length != 0) {
+		closeRedir();
+	} else {
+		signinBtn.style.display = "";
+	}
 
 	function closeRedir() {
 		let closeAuthTimer = setInterval(() => {
@@ -140,13 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
 						box.appendChild(acc_header);
 						box.appendChild(document.createElement("br"));
 						
-						// box.style.display = "none";
-						// let br = document.createElement("br");
-						// br.style.display = "none";
-
-						// df.appendChild(box);
-						// df.appendChild(br);
-						
 						acc.box = box;
 					});
 					// results_area.appendChild(df);
@@ -155,8 +159,8 @@ document.addEventListener("DOMContentLoaded", () => {
 					loading.style.display = "none";
 					retrieveBtn.style.display = "";
 					
-					ACC_LIMIT = accs.length;
-					// ACC_LIMIT = 50;
+					// ACC_LIMIT = accs.length;
+					ACC_LIMIT = 50;
 					mn();
 				} else {
 					loading.style.display = "none";
@@ -173,8 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	// Handles front end logic
 	function mn() {
 		retrieveBtn.addEventListener("click", () => {
-			df = document.createDocumentFragment();
-			// results_area.style.display = "";
+			let page = document.createElement("div");
 			j = 0;
 			
 			loading.style.display = "";
@@ -193,21 +196,24 @@ document.addEventListener("DOMContentLoaded", () => {
 					j++;
 					// console.log(j);
 					let results = JSON.parse(req.responseText);
-					outputResults(results);
-					if (df.childElementCount % 10 == 0) {
-						// console.log(df.childElementCount);
-						results_area.appendChild(df);
-						df = document.createDocumentFragment();
+					outputResults(results, page);
+					
+					if (page.childElementCount == 16) {
+						pages.push(page);
+						page = document.createElement("div");
+						if (pages.length == 1) results_area.appendChild(pages[0]);
 					}
 					
 					if (j == ACC_LIMIT) {
-					// if (j == 30) {
 						setTimeout(() => {
 							loading.style.display = "none";
 							retrieveBtn.style.display = "";
-
-							results_area.appendChild(df);
-							// console.log(df);
+							
+							if (page.childElementCount % 16 != 0) {
+								console.log(pages);
+								pages.push(page);
+								if (pages.length == 1) results_area.appendChild(pages[0]);
+							}
 						}, 500);
 					}
 				};
@@ -217,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 	
 	// Appends to a document fragment, which will later be appended to DOM
-	let outputResults = (data) => {
+	let outputResults = (data, df) => {
 		let acc = accs[data.id];
 		if (data.vids && data.vids.length > 0) {
 			let box = acc.box;
@@ -238,9 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			}
 			vids.style.display = "none";
 			box.appendChild(vids);
-			// box.style.display = "";
-			// box.nextSibling.style.display = "";
-			// console.log(box.childElementCount);
 			
 			df.appendChild(box);
 			df.appendChild(document.createElement("br"));
