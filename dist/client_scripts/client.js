@@ -57,10 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		let df = document.createDocumentFragment();
 		df.appendChild(pages[currPage]);
 		results_area.innerHTML = "";
-		// results_area.appendChild(pages[currPage]);
 		results_area.appendChild(df);
-		// results_area.appendChild(document.createDocumentFragment().appendChild(pages[currPage]));
-		// console.log(pages[currPage]);
 	});
 	
 	document.getElementById("right").addEventListener("click", () => {
@@ -68,10 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		let df = document.createDocumentFragment();
 		df.appendChild(pages[currPage]);
 		results_area.innerHTML = "";
-		// results_area.appendChild(pages[currPage]);
 		results_area.appendChild(df);
-		// results_area.appendChild(document.createDocumentFragment().appendChild(pages[currPage]));
-		// console.log(pages[currPage]);
 	});
 	
 	let auth_window;
@@ -167,8 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
 					loading.style.display = "none";
 					retrieveBtn.style.display = "";
 					
-					// ACC_LIMIT = accs.length;
-					ACC_LIMIT = 50;
+					ACC_LIMIT = accs.length;
+					// ACC_LIMIT = 50;
 					mn();
 				} else {
 					loading.style.display = "none";
@@ -198,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			for (let i = 0; i < ACC_LIMIT; i++) {
 			// for (let i = 29; i >= 0; i--) {
 				let req = new XMLHttpRequest(); // AJAX request for each account
-				req.open("GET", `http://localhost:3001/getvids?acc_index=${i}`)
+				req.open("GET", `http://localhost:3001/getvids?acc_name=${accs[i].screen_name}`);
 				// console.log("a");
 				
 				req.onload = () => {
