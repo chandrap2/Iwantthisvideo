@@ -8,6 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
     let user, user_pic;
 
     let signinBtn = document.getElementById("login-btn");
+    let input = document.getElementById("input");
+    let loading = document.getElementById("loading");
+    let retrieveBtn = document.getElementById("retrieve");
+    let results_area = document.getElementById("results");
+    
+    let auth_window;
+
+    /**
+     *
+     * EVENT HANDLERS
+     * *********************
+     *
+     */
+
     signinBtn.addEventListener("click", () => {
         sendHttpGetReq("/get_req_token")
         .then(res => {
@@ -22,9 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    let input = document.getElementById("input");
-    let loading = document.getElementById("loading");
-    let retrieveBtn = document.getElementById("retrieve");
     retrieveBtn.addEventListener("click", () => {
         pages = [];
         let page = document.createElement("div");
@@ -66,8 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    let results_area = document.getElementById("results");
-
     document.getElementById("left").addEventListener("click", () => {
         currPage = (currPage == 0) ? pages.length - 1 : currPage - 1;
         let df = document.createDocumentFragment();
@@ -83,9 +92,42 @@ document.addEventListener("DOMContentLoaded", () => {
         results_area.innerHTML = "";
         results_area.appendChild(df);
     });
-
-    let auth_window;
     
+    /**
+     *
+     * WEBSITE STATE FLOW
+     * *********************
+     * 
+     */
+    
+    sendHttpGetReq("/verify")
+    .then(res => {
+        if (Object.keys(res).length != 0) { // verified
+            return res;
+        } else { // not verified
+            signinBtn.style.display = "";
+            return Promise.reject("Not signed in");
+        }
+    })
+    .then(res => signedIn(res))
+    .catch((err) => {
+        console.log(err);
+        
+        waitForLogin()
+        .then(res => sendHttpGetReq("/verify"))
+        .then(res => signedIn(res))
+        .catch(console.error);
+    });
+    
+    /**
+     * 
+     * HELPER FUNCTIONS
+     * *********************
+     */
+
+    /**
+     * Promise resolves once user has authorized access
+     */
     function waitForLogin() {
         return new Promise(res => {
             let checkCookie = setInterval(() => {
@@ -101,34 +143,25 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    sendHttpGetReq("/verify")
-    .then(res => {
-        if (Object.keys(res).length != 0) {
-            return res;
-        } else {
-            signinBtn.style.display = "";
-            return Promise.reject("Not signed in");
-        }
-    })
-    .then(res => signedIn(res))
-    .catch((err) => {
-        console.log(err);
-        
-        waitForLogin()
-        .then(res => sendHttpGetReq("/verify"))
-        .then(res => signedIn(res))
-        .catch(console.error);
-    });
-    
-
+    /**
+     * What to do once user has signed in
+     * 
+     * @param {Object} user 
+     */
     function signedIn(user) {
-        console.log("signed in");
+        // console.log("signed in");
 
         showSignedInStatus(user)
         .then(res => getAccs())
         .catch(console.error);
     }
 
+
+    /**
+     * Display 'signed in' indicator with user's profile pic 
+     * 
+     * @param {Object} user 
+     */
     function showSignedInStatus(user) {
         signinBtn.style.display = "none";
         
@@ -139,13 +172,15 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("signed-in").style.display = "";
         document.getElementById("signed-in").style.paddingRight = "16px";
         input.style.display = "";
-        // signoutBtn.style.display = "";
         
         return Promise.resolve();
     }
     
+    /**
+     * Acquire list of friend 'user' objects
+     */
     function getAccs() {
-        console.log("getting accs");
+        // console.log("getting accs");
 
         sendHttpGetReq("/get_accs")
         .then(res => {
@@ -211,12 +246,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     
+    /**
+     * Send GET request to server and return JSON reponse
+     * 
+     * @param {String} url 
+     */
     function sendHttpGetReq(url) {
         return fetch(url, { credentials: "include" })
         .then(res => res.json());
     }
 
-    // Appends to a document fragment, which will later be appended to DOM
+    /**
+     * Append child 'video' elements to account's result 'div' element
+     * 
+     * @param {Object} data 
+     * @param {HTMLElement} df 
+     */
     let outputResults = (data, df) => {
         let acc = accs[data.id];
         // let acc = accs[j];
@@ -245,11 +290,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /**
+     * Return array of site's cookies
+     */
     function getCookies() {
         let cks = document.cookie;
         if (cks == "") return [];
         
-        // let re = /=*(; )*/;
         let vals = cks.split(/=|; /);
         return [vals[1], vals[3]];
     }
@@ -258,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // }
     
-    // function toggleElement(element) {
+    // function toggleEleme(element) {
         
     // }
 });

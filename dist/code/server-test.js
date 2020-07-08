@@ -6,19 +6,17 @@ const token_path = "./twit_auth2.txt";
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
-const { response } = require("express");
-const app = express()
-const port = 3001
+const app = express();
+const port = 3001;
 
-app.set("views", __dirname)
-app.use(express.static(__dirname + "/../client_scripts"))
-app.use(express.static(__dirname + "/../styles"))
-app.use(cookieParser())
+app.set("views", __dirname);
+app.use(express.static(__dirname + "/../client_scripts"));
+app.use(express.static(__dirname + "/../styles"));
+app.use(cookieParser());
 
 // Listen on port 3001
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
-    // init();
 });
 
 app.get("/", (req, res1) => {
@@ -32,7 +30,6 @@ app.get("/clear_cookies", (req, res1) => {
 });
 
 app.get("/verify", (req, res1) => {
-    
     let cks = req.cookies;
     // console.log(cks);
 
@@ -46,10 +43,7 @@ app.get("/verify", (req, res1) => {
         T = new Twit(auth_tokens);
         T.get("account/verify_credentials")
         .then(res2 => res1.json(res2))
-        .catch((err) => {
-            console.log(err);
-            // res1.json({ });
-        });
+        .catch(err => console.log(err));
     } else {
         res1.json({ });
     }
@@ -91,14 +85,9 @@ app.get("/get_accs", (req, res1) => {
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         T = new Twit(auth_tokens);
 
-        // T.get("account/verify_credentials")
-        // .then(res2 => 
         T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
-        // .then(res3 => response.json({ accs: res3.users } ))
         .then(res3 => res1.json( { accs: res3.users } ))
         .catch(console.error)
-        // )
-        // .catch(console.error);
     }
 });
 
@@ -149,7 +138,7 @@ function getVids(results) {
                         vid = variants[j];
                         max_bitrate = variants[j].bitrate;
                     }
-                } // for (j in variants)
+                } // for (j in varirify_credentials")
                 vid_obj.vid = vid.url;
                 output.vids.push(vid_obj);
             } // if (entities != undefined && ...
