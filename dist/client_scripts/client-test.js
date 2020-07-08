@@ -38,13 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         for (let i = 0; i < ACC_LIMIT; i++) {
             // for (let i = 29; i >= 0; i--) {
-            let req = new XMLHttpRequest(); // AJAX request for each account
             sendHttpGetReq(`/get_vids?acc_name=${accs[i].screen_name}&id=${i}`)
             .then(res => {
                 j++;
                 // console.log(res);
-                // let results = JSON.parse(res);
-                let results = res;
                 outputResults(res, page);
     
                 if (page.childElementCount == 16) {
@@ -89,22 +86,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let auth_window;
     
+    function waitForLogin() {
+        return new Promise(res => {
+            let checkCookie = setInterval(() => {
+                console.log("checking if cookies exist");
+    
+                if (auth_window && getCookies().length == 2) {
+                    console.log("cookies found");
+                    auth_window.close();
+                    clearInterval(checkCookie);
+                    res();
+                }
+            }, 1000);
+        });
+    }
+
     sendHttpGetReq("/verify")
     .then(res => {
-        if (Object.keys(res).length == 0) {
+        if (Object.keys(res).length != 0) {
+            return res;
+        } else {
             signinBtn.style.display = "";
             return Promise.reject("Not signed in");
-        } else {
-            return res;
         }
     })
     .then(res => signedIn(res))
-    .then(res => getAccs())
-    .catch(res => console.log(res));
+    .catch((err) => {
+        console.log(err);
+        
+        waitForLogin()
+        .then(res => sendHttpGetReq("/verify"))
+        .then(res => signedIn(res))
+        .catch(console.error);
+    });
     
+
     function signedIn(user) {
         console.log("signed in");
-        
+
+        showSignedInStatus(user)
+        .then(res => getAccs())
+        .catch(console.error);
+    }
+
+    function showSignedInStatus(user) {
         signinBtn.style.display = "none";
         
         user_pic = document.getElementById("user-pic");
@@ -124,10 +149,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         sendHttpGetReq("/get_accs")
         .then(res => {
-            let results = res;
+            // let results = res;
+            accs = res.accs;
             
-            if (results.accs.length > 0) {
-                accs = results.accs;
+            if (accs.length > 0) {
+                // accs = results.accs;
                 accs.forEach(acc => {
                     let box = document.createElement("div");
                     box.className = "result";
@@ -176,9 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 loading.style.display = "none";
                 retrieveBtn.style.display = "";
                 
-                // ACC_LIMIT = accs.length;
-                ACC_LIMIT = 50;
-                // mn();
+                ACC_LIMIT = accs.length;
+                // ACC_LIMIT = 50;
             } else {
                 loading.style.display = "none";
                 document.getElementById("no-accs").style.display = "";
@@ -218,6 +243,15 @@ document.addEventListener("DOMContentLoaded", () => {
             df.appendChild(box);
             df.appendChild(document.createElement("br"));
         }
+    }
+
+    function getCookies() {
+        let cks = document.cookie;
+        if (cks == "") return [];
+        
+        // let re = /=*(; )*/;
+        let vals = cks.split(/=|; /);
+        return [vals[1], vals[3]];
     }
 
     // function removeListener(element, listener) {

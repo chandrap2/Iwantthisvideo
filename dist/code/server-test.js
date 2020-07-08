@@ -122,7 +122,7 @@ app.get("/get_vids", (req, res1) => {
             final.id = parseInt(req.query.id);
             res1.json(final);
         })
-        .catch(err => console.error);
+        .catch(err => res1.json({ }) );
     }
 });
 
