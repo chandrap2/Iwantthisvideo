@@ -2,6 +2,7 @@ const Twit = require("twitter-lite");
 var T;
 
 const fs = require("fs");
+const token_path = "./twit_auth2.txt";
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -14,7 +15,7 @@ app.use(express.static(__dirname + "/../styles"))
 app.use(cookieParser())
 
 let user;
-let accs = [];
+// let accs = [];
 
 // let accessToken;
 let accessTknAuthorized = false;
@@ -27,7 +28,7 @@ app.listen(port, () => {
 
 // Home page
 app.get("/", (request, response) => {
-	response.clearCookie("naaame");
+	// response.clearCookie("naaame");
 	// console.log("signin page");
 	// console.log(request.headers);
 	let cks = request.cookies;
@@ -35,8 +36,7 @@ app.get("/", (request, response) => {
 	
 	if (cks.accToken &&
 			cks.accToken != "undefined" && cks.accTokenSec != "undefined") {
-		let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
-		auth_tokens = JSON.parse(auth_tokens);
+		let auth_tokens = readAppToken(token_path);
 		auth_tokens.access_token_key = request.cookies.accToken;
 		auth_tokens.access_token_secret = request.cookies.accTokenSec;
 		// console.log(auth_tokens);
@@ -51,10 +51,6 @@ app.get("/", (request, response) => {
 	} else {
 		response.sendFile("index.html", { root: __dirname + "/../views" });
 	}
-	// response.cookie("name", "a", {sameSite: true, httpOnly: true});
-	// response.cookie("naaame", "aa", {sameSite: true});
-	// response.clearCookie("name");
-	// response.clearCookie("naaame");
 });
 
 // Get Twitter user access token
@@ -71,8 +67,7 @@ app.get("/redir", (request, response) => {
 	T.getAccessToken(user_auth).then(res => {
 		// console.log(res);
 
-		let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
-		auth_tokens = JSON.parse(auth_tokens);
+		let auth_tokens = readAppToken(token_path);
 		auth_tokens.access_token_key = res.oauth_token;
 		auth_tokens.access_token_secret = res.oauth_token_secret;
 
@@ -95,26 +90,18 @@ app.get("/redir", (request, response) => {
 });
 
 app.get("/close_auth", (requeest, response) => {
+	T.get("account/verify_credentials");
+
 	if (accessTknAuthorized) {
 		accessTknAuthorized = false;
 
 		// Rate limits: 15/15mins
 		T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
 			.then(results => {
-				accs = results.users;
 				response.json(user);
 			})
 			.catch(err => console.log(T));
 	}
-});
-
-app.get("/user", (request, response) => {
-	T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
-		.then(results => {
-			accs = results.users
-			response.json(user);
-		})
-		.catch(err => console.log(T));
 });
 
 app.get("/logout", (request, response) => {
@@ -129,29 +116,27 @@ app.get("/check_accs", (request, response) => {
 
 // Send results
 app.get("/getvids", (request, response) => {
-	let i = request.query.acc_index;
-	let acc = accs[i];
+	let name = request.query.acc_name;
+	// let acc = accs[i];
 
 	// Rate limits: 900/15mins, 100k/day
 	T.get("statuses/user_timeline",
-		{ screen_name: acc.screen_name, exclude_replies: true, trim_user: true, count: 20 })
+		{ screen_name: name, exclude_replies: true, trim_user: true, count: 20 })
 		.then(results => {
 			let final = getVids(results);
-			final.id = i;
+			// final.id = i;
 			response.json(final);
 		}).catch(err => {
 			console.log(err);
-
 			err = {};
-			err.id = i;
+			// err.id = i;
 			response.json(err);
 		});
 });
 
 // Twitter authorization (user auth, lower rate limits)
 function init() {
-	let auth_tokens = fs.readFileSync("./twit_auth2.txt", "utf8");
-	auth_tokens = JSON.parse(auth_tokens);
+	let auth_tokens = readAppToken(token_path);
 	// if (accessToken) auth_tokens = {...auth_tokens, ...accessToken};
 
 	T = new Twit(auth_tokens);
@@ -188,6 +173,11 @@ function getVids(results) {
 	}
 
 	return output;
+}
+
+function readAppToken(path) {
+	let auth_tokens = fs.readFileSync(path, "utf8");
+	return JSON.parse(auth_tokens);
 }
 
 function test(results) {
