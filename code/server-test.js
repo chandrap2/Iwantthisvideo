@@ -15,12 +15,17 @@ app.use(express.static(__dirname + "/../styles"));
 app.use(cookieParser());
 
 // Listen on port 3001
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-});
+// app.listen(port, () => {
+//     console.log(`Server listening at http://localhost:${port}`);
+// });
+
+// app.get("/", (req, res1) => {
+//     res1.sendFile("index.html", { root: __dirname + "/../views" });
+// });
 
 app.get("/", (req, res1) => {
-    res1.sendFile("index.html", { root: __dirname + "/../views" });
+    res1.send("hello");
+    // res1.status(200).send('hello world!');
 });
 
 app.get("/clear_cookies", (req, res1) => {
@@ -152,3 +157,5 @@ function readAppToken(path) {
     let auth_tokens = fs.readFileSync(path, "utf8");
     return JSON.parse(auth_tokens);
 }
+
+module.exports = app;
