@@ -38,7 +38,7 @@ app.get("/verify", async (req, res1) => {
         let auth_tokens = await readAppToken();
         auth_tokens.access_token_key = req.cookies.accToken;
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
-        console.log(auth_tokens);
+        // console.log(auth_tokens);
 
         T = new Twit(auth_tokens);
         T.get("account/verify_credentials")
@@ -49,20 +49,11 @@ app.get("/verify", async (req, res1) => {
     }
 });
 
-// app.use(cors({ origin: 'https://master.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
 app.get("/get_req_token", async (req, res1) => {
-    // console.log(req);
-    // console.log(res1);
     let consumer_auth = await readAppToken();
     T = new Twit(consumer_auth);
-    // readAppToken()
-    console.log("twitter:", T);
-    console.log("token:", consumer_auth);
 
-    // res1.json({ });
-    // let req_token = await T.getRequestToken("https://1poxidle5i.execute-api.us-west-2.amazonaws.com/production/redir");
     let req_token = await T.getRequestToken("https://master.drw0o7cx6sm26.amplifyapp.com/test.html");
-    console.log("req:", req_token);
     res1.json(req_token);
 });
 
@@ -77,15 +68,9 @@ app.get("/redir", async (req, res1) => {
     consumer_auth.access_token_secret = res2.oauth_token_secret;
     T = new Twit(consumer_auth);
 
-    res1.cookie("accToken", res2.oauth_token, {
-        sameSite: false
-    });
-    // , httpOnly: false, domain: "master.drw0o7cx6sm26.amplifyapp.com"} );
-    res1.cookie("accTokenSec", res2.oauth_token_secret, {
-        sameSite: false
-    });
-    // , httpOnly: false, domain: "master.drw0o7cx6sm26.amplifyapp.com" });
-    res1.json({});
+    res1.cookie("accToken", res2.oauth_token, { sameSite: false });
+    res1.cookie("accTokenSec", res2.oauth_token_secret, { sameSite: false });
+    res1.json({ });
 });
 
 app.get("/is_logged_in", (req, res1) => {
@@ -94,12 +79,11 @@ app.get("/is_logged_in", (req, res1) => {
     res1.json(response);
 });
 
-app.get("/get_accs", (req, res1) => {
+app.get("/get_accs", async (req, res1) => {
     let cks = req.cookies;
 
-    if (cks.accToken &&
-        cks.accToken != "undefined" && cks.accTokenSec != "undefined") {
-        let auth_tokens = readAppToken();
+    if (isLoggedIn(cks)) {
+        let auth_tokens = await readAppToken();
         auth_tokens.access_token_key = req.cookies.accToken;
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         T = new Twit(auth_tokens);
@@ -110,15 +94,13 @@ app.get("/get_accs", (req, res1) => {
     }
 });
 
-app.get("/get_vids", (req, res1) => {
-    let name = req.query.acc_name;
-    console.log(name);
-
+app.get("/get_vids", async (req, res1) => {
     let cks = req.cookies;
+    let name = req.query.acc_name;
+    // console.log(name);
 
-    if (cks.accToken &&
-        cks.accToken != "undefined" && cks.accTokenSec != "undefined") {
-        let auth_tokens = readAppToken();
+    if (isLoggedIn(cks)) {
+        let auth_tokens = await readAppToken();
         auth_tokens.access_token_key = req.cookies.accToken;
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         T = new Twit(auth_tokens);
@@ -170,8 +152,6 @@ function getVids(results) {
 async function readAppToken() {
     let file = await s3.getObject(fileParams).promise();
     let result = JSON.parse(file.Body.toString("utf8"));
-    console.log("data", result);
-
     return result;
 }
 
