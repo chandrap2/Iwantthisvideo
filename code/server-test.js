@@ -68,8 +68,8 @@ app.get("/redir", async (req, res1) => {
     consumer_auth.access_token_secret = res2.oauth_token_secret;
     T = new Twit(consumer_auth);
 
-    res1.cookie("accToken", res2.oauth_token, { sameSite: false });
-    res1.cookie("accTokenSec", res2.oauth_token_secret, { sameSite: false });
+    res1.cookie("accToken", res2.oauth_token, { sameSite: "None", secure: true });
+    res1.cookie("accTokenSec", res2.oauth_token_secret, { sameSite: "None", secure: true });
     res1.json({ });
 });
 
@@ -110,6 +110,7 @@ app.get("/get_vids", async (req, res1) => {
             .then(res3 => {
                 let final = getVids(res3);
                 final.id = parseInt(req.query.id);
+                console.log("video results sent");
                 res1.json(final);
             })
             .catch(err => res1.json({}));
