@@ -13,7 +13,6 @@ const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 const fileParams = { Bucket: "twit-stuff", Key: "twit_auth2.txt" };
 
 app.use(cors({ origin: 'https://master.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
-// app.use(cors({ origin: 'https://master.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
 app.use(cookieParser());
 
 // app.get("/", (req, res1) => {
@@ -39,11 +38,10 @@ app.get("/verify", async (req, res1) => {
         auth_tokens.access_token_key = req.cookies.accToken;
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         // console.log(auth_tokens);
-
         T = new Twit(auth_tokens);
-        T.get("account/verify_credentials")
-            .then(res2 => res1.json(res2))
-            .catch(err => console.log(err));
+
+        let acc = await T.get("account/verify_credentials");
+        res1.json(acc);
     } else {
         res1.json({});
     }
@@ -70,7 +68,7 @@ app.get("/redir", async (req, res1) => {
 
     res1.cookie("accToken", res2.oauth_token, { sameSite: "None", secure: true });
     res1.cookie("accTokenSec", res2.oauth_token_secret, { sameSite: "None", secure: true });
-    res1.json({ });
+    res1.json({});
 });
 
 app.get("/is_logged_in", (req, res1) => {
@@ -88,9 +86,8 @@ app.get("/get_accs", async (req, res1) => {
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         T = new Twit(auth_tokens);
 
-        T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 })
-            .then(res3 => res1.json({ accs: res3.users }))
-            .catch(console.error)
+        let list = await T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 });
+        res1.json({ accs: list.users });
     }
 });
 
@@ -105,15 +102,16 @@ app.get("/get_vids", async (req, res1) => {
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         T = new Twit(auth_tokens);
 
-        T.get("statuses/user_timeline",
-            { screen_name: name, exclude_replies: true, trim_user: true, count: 20 })
-            .then(res3 => {
-                let final = getVids(res3);
-                final.id = parseInt(req.query.id);
-                console.log("video results sent");
-                res1.json(final);
-            })
-            .catch(err => res1.json({}));
+        try {
+            let tweets = await T.get("statuses/user_timeline",
+                { screen_name: name, exclude_replies: true, trim_user: true, count: 20 });
+            let final = getVids(tweets);
+            final.id = parseInt(req.query.id);
+            console.log("video results sent");
+            res1.json(final);
+        } catch (e) {
+            res1.json({ });
+        }
     }
 });
 
