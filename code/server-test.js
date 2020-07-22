@@ -12,7 +12,7 @@ AWS.config.update({ region: "us-west-2" });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 const fileParams = { Bucket: "twit-stuff", Key: "twit_auth2.txt" };
 
-app.use(cors({ origin: 'https://master.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
+app.use(cors({ origin: 'https://prod.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
 // app.use(cors({ origin: 'https://master.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
 app.use(cookieParser());
 
