@@ -5,14 +5,23 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node server.js"
+    "build": "node server.js",
+    "deploy": "serverless deploy"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.715.0",
+    "aws-serverless-express": "^3.3.8",
     "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "twit": "^2.2.11",
     "twitter-lite": "^0.13.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.715.0",
+    "twitter-lite": "^0.13.0",
+    "serverless": "^1.75.0"
   }
 }
