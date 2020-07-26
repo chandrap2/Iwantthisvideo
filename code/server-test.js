@@ -12,7 +12,7 @@ AWS.config.update({ region: "us-west-2" });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 const fileParams = { Bucket: "twit-stuff", Key: "twit_auth2.txt" };
 
-app.use(cors({ origin: 'https://master.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
+app.use(cors({ origin: 'https://unparsed-tweets.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
 app.use(cookieParser());
 
 // app.get("/", (req, res1) => {
@@ -94,53 +94,35 @@ app.get("/get_accs", async (req, res1) => {
 app.get("/get_vids", async (req, res1) => {
     let cks = req.cookies;
     let name = req.query.acc_name;
-    // console.log(name);
 
     if (isLoggedIn(cks)) {
         let auth_tokens = await readAppToken();
         auth_tokens.access_token_key = req.cookies.accToken;
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         T = new Twit(auth_tokens);
-
+        
         try {
             let tweets = await T.get("statuses/user_timeline",
                 { screen_name: name, exclude_replies: true, trim_user: true, count: 20 });
-            let final = getVids(tweets);
+            let final = getTweets(tweets);
             final.id = parseInt(req.query.id);
-            console.log("video results sent");
             res1.json(final);
-        } catch (e) {
-            res1.json({ });
+        } catch (err) {
+            console.log(`Something went wrong getting tweets by ${name}`);
+            console.log(`\t${err}`);
+            res1.json({ vids: [] });
         }
     }
 });
 
-// Output video URL's from a user's most recent Tweets
-function getVids(results) {
-    let output = {};
+function getTweets(results) {
+    let output = { vids: [] };
 
     if (results.length > 0) { // if tweets were returned
-        output.vids = []
-
         for (i in results) { // look at each tweet
             let entities = results[i].extended_entities
-            if (entities != undefined &&
-                entities.media[0].type == "video") { // if tweet contains video
-                let thumbnail = results[i].entities.media[0].media_url_https;
-                let vid_obj = { thumbnail: thumbnail };
-
-                let variants = entities.media[0].video_info.variants; // parse through video metadata
-                let max_bitrate = -1
-                let vid = variants[0];
-                for (j in variants) { // output highest quality video url
-                    if (variants[j].content_type == "video/mp4" &&
-                        variants[j].bitrate > max_bitrate) {
-                        vid = variants[j];
-                        max_bitrate = variants[j].bitrate;
-                    }
-                } // for (j in varirify_credentials")
-                vid_obj.vid = vid.url;
-                output.vids.push(vid_obj);
+            if (entities && entities.media[0].type == "video") { // if tweet contains video
+                output.vids.push(results[i]);
             } // if (entities != undefined && ...
         } // for (i in data)
     }
