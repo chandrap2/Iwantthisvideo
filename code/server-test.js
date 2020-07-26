@@ -94,25 +94,23 @@ app.get("/get_accs", async (req, res1) => {
 app.get("/get_vids", async (req, res1) => {
     let cks = req.cookies;
     let name = req.query.acc_name;
-    // console.log(name);
 
     if (isLoggedIn(cks)) {
         let auth_tokens = await readAppToken();
         auth_tokens.access_token_key = req.cookies.accToken;
         auth_tokens.access_token_secret = req.cookies.accTokenSec;
         T = new Twit(auth_tokens);
-
+        
         try {
             let tweets = await T.get("statuses/user_timeline",
                 { screen_name: name, exclude_replies: true, trim_user: true, count: 20 });
             let final = getTweets(tweets);
-            if (!final.vids || final.vids.length == 0) throw "no videos";
             final.id = parseInt(req.query.id);
-            console.log("video results sent");
             res1.json(final);
-        } catch (e) {
-            res1.json({ });
-            console.error;
+        } catch (err) {
+            console.log(`Something went wrong getting tweets by ${name}`);
+            console.log(`\t${err}`);
+            res1.json({ vids: [] });
         }
     }
 });
