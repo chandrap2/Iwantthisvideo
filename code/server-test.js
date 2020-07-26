@@ -91,6 +91,20 @@ app.get("/get_accs", async (req, res1) => {
     }
 });
 
+app.get("/get_timeline", async (req, res1) => {
+    let cks = req.cookies;
+
+    if (isLoggedIn(cks)) {
+        let auth_tokens = await readAppToken();
+        auth_tokens.access_token_key = req.cookies.accToken;
+        auth_tokens.access_token_secret = req.cookies.accTokenSec;
+        T = new Twit(auth_tokens);
+
+        let list = await T.get("statuses/home_timeline", { count: 10, exclude_replies: true });
+        res1.json(list);
+    }
+});
+
 app.get("/get_vids", async (req, res1) => {
     let cks = req.cookies;
     let name = req.query.acc_name;
