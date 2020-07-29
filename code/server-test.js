@@ -12,7 +12,7 @@ AWS.config.update({ region: "us-west-2" });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 const fileParams = { Bucket: "twit-stuff", Key: "twit_auth2.txt" };
 
-app.use(cors({ origin: 'https://unparsed-tweets.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
+app.use(cors({ origin: 'https://user-timeline-client.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
 app.use(cookieParser());
 
 // app.get("/", (req, res1) => {
@@ -88,6 +88,32 @@ app.get("/get_accs", async (req, res1) => {
 
         let list = await T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 });
         res1.json({ accs: list.users });
+    }
+});
+
+app.get("/get_timeline", async (req, res1) => {
+    let cks = req.cookies;
+
+    if (isLoggedIn(cks)) {
+        let auth_tokens = await readAppToken();
+        auth_tokens.access_token_key = req.cookies.accToken;
+        auth_tokens.access_token_secret = req.cookies.accTokenSec;
+        T = new Twit(auth_tokens);
+
+        // let list = await T.get("statuses/home_timeline", { count: 10, exclude_replies: true });
+        // res1.json(list);
+
+        try {
+            let tweets = await T.get("statuses/home_timeline",
+                { count: 200, exclude_replies: true });
+            let final = getTweets(tweets);
+            // final.id = parseInt(req.query.id);
+            res1.json(final);
+        } catch (err) {
+            console.log(`Something went wrong getting the timeline}`);
+            console.log(`\t${err}`);
+            res1.json({ vids: [] });
+        }
     }
 });
 
