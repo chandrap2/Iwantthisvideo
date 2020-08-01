@@ -12,7 +12,7 @@ AWS.config.update({ region: "us-west-2" });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 const fileParams = { Bucket: "twit-stuff", Key: "twit_auth2.txt" };
 
-app.use(cors({ origin: 'https://master.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
+app.use(cors({ origin: 'https://cleanup.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
 app.use(cookieParser());
 
 // app.get("/", (req, res1) => {
@@ -87,7 +87,7 @@ app.get("/get_accs", async (req, res1) => {
         T = new Twit(auth_tokens);
 
         let list = await T.get("friends/list", { skip_status: true, include_user_entities: false, count: 200 });
-        res1.json({ accs: list.users });
+        res1.json(list.users);
     }
 });
 
@@ -106,13 +106,11 @@ app.get("/get_timeline", async (req, res1) => {
         try {
             let tweets = await T.get("statuses/home_timeline",
                 { count: 200, exclude_replies: true });
-            let final = getTweets(tweets);
-            // final.id = parseInt(req.query.id);
-            res1.json(final);
+            res1.json(getTweets(tweets));
         } catch (err) {
             console.log(`Something went wrong getting the timeline}`);
             console.log(`\t${err}`);
-            res1.json({ vids: [] });
+            res1.json([ ]);
         }
     }
 });
@@ -130,7 +128,7 @@ app.get("/get_vids", async (req, res1) => {
         try {
             let tweets = await T.get("statuses/user_timeline",
                 { screen_name: name, exclude_replies: true, trim_user: true, count: 20 });
-            let final = getTweets(tweets);
+            let final = { vids: getTweets(tweets) };
             final.id = parseInt(req.query.id);
             res1.json(final);
         } catch (err) {
@@ -141,19 +139,21 @@ app.get("/get_vids", async (req, res1) => {
     }
 });
 
+app.get("/array_test", (req, res) => {
+    res.json(["chandra", "pand"]);
+});
+
 function getTweets(results) {
-    let output = { vids: [] };
+    let vidTweets = [];
 
     if (results.length > 0) { // if tweets were returned
-        for (i in results) { // look at each tweet
-            let entities = results[i].extended_entities
-            if (entities && entities.media[0].type == "video") { // if tweet contains video
-                output.vids.push(results[i]);
-            } // if (entities != undefined && ...
-        } // for (i in data)
+        results.forEach(result => {
+            let entities = result.extended_entities;
+            if (entities && entities.media[0].type == "video") vidTweets.push(result);
+        });
     }
 
-    return output;
+    return vidTweets;
 }
 
 async function readAppToken() {
