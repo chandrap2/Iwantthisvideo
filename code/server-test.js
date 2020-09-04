@@ -12,7 +12,9 @@ AWS.config.update({ region: "us-west-2" });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 const fileParams = { Bucket: "twit-stuff", Key: "twit_auth2.txt" };
 
-app.use(cors({ origin: 'https://cleanup.drw0o7cx6sm26.amplifyapp.com', credentials: true }));
+// app.use(cors({ origin: 'https://cleanup.drw0o7cx6sm26.amplifyapp.com', credentials: true })); // beginner frontend
+// app.use(cors({ origin: 'https://master.d3hzc83ckxw5ab.amplifyapp.com', credentials: true })); // react frontend
+app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // local test
 app.use(cookieParser());
 
 // app.get("/", (req, res1) => {
@@ -40,7 +42,7 @@ app.get("/verify", async (req, res1) => {
         // console.log(auth_tokens);
         T = new Twit(auth_tokens);
 
-        let acc = await T.get("account/verify_credentials");
+        let acc = await T.get("account/verify_credentials", { skip_status: true });
         res1.json(acc);
     } else {
         res1.json({});
@@ -51,7 +53,9 @@ app.get("/get_req_token", async (req, res1) => {
     let consumer_auth = await readAppToken();
     T = new Twit(consumer_auth);
 
-    let req_token = await T.getRequestToken("https://master.drw0o7cx6sm26.amplifyapp.com/test.html");
+    // let req_token = await T.getRequestToken("https://master.drw0o7cx6sm26.amplifyapp.com/test.html"); // beginner frontend
+    let req_token = await T.getRequestToken("http://localhost:3000/redir.html"); // local test
+    // let req_token = await T.getRequestToken("https://master.d3hzc83ckxw5ab.amplifyapp.com/redir.html"); // react frontends
     res1.json(req_token);
 });
 
